@@ -15,7 +15,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/user/signup" element={<Signup />} />
+        <Route path="/user/signup/:referralId?" element={<Signup />} />
         <Route path="/user/login" element={<Login/>} />
         <Route path="/user/DashBoard" element={<UserDashBoard/>} />
         <Route path="/" element={<Dashboard/>} />

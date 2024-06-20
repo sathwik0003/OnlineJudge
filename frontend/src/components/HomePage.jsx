@@ -18,21 +18,32 @@ import {
 } from '@chakra-ui/react';
 import Marquee from 'react-fast-marquee';
 import HomeCard from '../components/HomeCard';
+import G_logo from '../assets/google_logo.jpeg'
+import Micro_logo from '../assets/microsoft_logo.jpeg'
+import Meta_logo from '../assets/meta_logo.jpeg'
+import Amazon_logo from '../assets/amazon_logo.jpeg'
+import Netflix_logo from '../assets/netflix_logo.jpeg'
+import Homeback1 from '../assets/home_back1.jpeg'
+import Homeback2 from '../assets/home_back2.jpeg'
+import Homeback3 from '../assets/home_back3.jpeg'
+import Homeback4 from '../assets/home_back4.jpeg'
+
+
 
 const companyLogos = [
-  { name: 'Company 1', logo: 'https://example.com/logo1.png', link: 'https://company1.com' },
-  { name: 'Company 2', logo: 'https://example.com/logo2.png', link: 'https://company2.com' },
-  { name: 'Company 3', logo: 'https://example.com/logo3.png', link: 'https://company3.com' },
-  { name: 'Company 4', logo: 'https://example.com/logo4.png', link: 'https://company4.com' },
-  { name: 'Company 5', logo: 'https://example.com/logo5.png', link: 'https://company5.com' },
+  { name: 'Company 1', logo: G_logo, link: 'https://company1.com' },
+  { name: 'Company 2', logo: Micro_logo, link: 'https://company2.com' },
+  { name: 'Company 3', logo: Meta_logo, link: 'https://company3.com' },
+  { name: 'Company 4', logo: Amazon_logo, link: 'https://company4.com' },
+  { name: 'Company 5', logo: Netflix_logo, link: 'https://company5.com' },
   // Add more company logos here
 ];
 
 const popularCourses = [
-  { title: 'Data Structures', image: 'https://example.com/ds.jpg', link: '/course/data-structures' },
-  { title: 'Algorithms', image: 'https://example.com/algo.jpg', link: '/course/algorithms' },
-  { title: 'Web Development', image: 'https://example.com/web.jpg', link: '/course/web-dev' },
-  { title: 'Machine Learning', image: 'https://example.com/ml.jpg', link: '/course/machine-learning' },
+  { title: 'Data Structures', image: Homeback1, link: '/course/data-structures' },
+  { title: 'Algorithms', image:Homeback2, link: '/course/algorithms' },
+  { title: 'Web Development', image:Homeback3 , link: '/course/web-dev' },
+  { title: 'Machine Learning', image:Homeback4 , link: '/course/machine-learning' },
   // Add more courses here
 ];
 

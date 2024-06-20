@@ -39,11 +39,11 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/; // Minimum eight characters, at least one letter and one number
 
 app.post("/register/:referralCode?", async (req, res) => {
-    const { username, password, confirmPassword, email, firstName, lastName } = req.body;
+    const { username, password, email, firstName, lastName } = req.body;
     const { referralCode } = req.params;
 
     try {
-        if (!(username && password && confirmPassword && email && firstName && lastName)) {
+        if (!(username && password && email && firstName && lastName)) {
             return res.status(400).send("Please fill all the fields");
         }
         if (!usernameRegex.test(username)) {
@@ -56,10 +56,6 @@ app.post("/register/:referralCode?", async (req, res) => {
 
         if (!passwordRegex.test(password)) {
             return res.status(400).send("Password must be at least 8 characters long and contain at least one letter and one number.");
-        }
-
-        if (password !== confirmPassword) {
-            return res.status(400).send("Passwords do not match.");
         }
 
         // Check if username or email already exists
@@ -173,6 +169,28 @@ app.post("/login", async (req, res) => {
         res.status(500).send("An error occurred");
     }
 });
+
+// Check if username exists
+app.post('/check-username', async (req, res) => {
+    const { username } = req.body;
+    try {
+      const user = await User.findOne({ username });
+      res.json({ exists: !!user });
+    } catch (error) {
+      res.status(500).json({ error: 'An error occurred while checking the username' });
+    }
+  });
+  
+  // Check if email exists
+  app.post('/check-email', async (req, res) => {
+    const { email } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      res.json({ exists: !!user });
+    } catch (error) {
+      res.status(500).json({ error: 'An error occurred while checking the email' });
+    }
+  });
 
 // Middleware to authenticate user using JWT
 function authenticateToken(req, res, next) {

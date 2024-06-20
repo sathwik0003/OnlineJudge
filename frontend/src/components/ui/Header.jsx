@@ -28,6 +28,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon, HamburgerIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import debounce from 'lodash/debounce';
+import algologo from '../../assets/algosprint_logo.jpeg'
 
 // Mock data for search
 const searchData = [
@@ -112,11 +113,11 @@ const Header = () => {
           <Image
             borderRadius="full"
             boxSize="40px"
-            src="https://via.placeholder.com/40"
+            src={algologo}
             alt="AlgoSprint Logo"
             mr={3}
           />
-          <Text fontSize="xl" fontWeight="bold" color="blue.500">
+          <Text fontSize="xl" fontWeight="bold" color="#127d7e">
             AlgoSprint
           </Text>
         </Flex>
