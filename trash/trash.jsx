@@ -20,29 +20,17 @@ import { EmailIcon, LockIcon, InfoIcon } from '@chakra-ui/icons';
 import signupimage from '../assets/algosprint_login.jpg';
 import wavy from '../assets/algosprint_back.jpg';
 import algo_logo from '../assets/algosprint_logo.jpeg'
-import { Link,useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 const Signup = () => {
-  const {referral_id} = useParams()
+  const { referral_id } = useParams();
   const toast = useToast();
   const navigate = useNavigate();
 
-  const [referralid, setReferralid] = useState('');
-
-  useEffect(()=>{
-    if(referral_id){
-      setReferralid(referral_id)
-    }
-  },[referral_id])
-
-  
-
-  
-
-  useEffect(()=>{
-    console.log(referral_id)
-  },[referral_id])
+  useEffect(() => {
+    console.log(referral_id);
+  }, [referral_id]);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -64,7 +52,6 @@ const Signup = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Regular expressions for validation
   const emailRegex = /^[a-zA-Z0-9+_-]+@[a-zA-Z0-9-]+\.[a-z]+$/;
   const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
@@ -103,8 +90,7 @@ const Signup = () => {
     if (!formData.password.trim()) {
       errors.password = 'Password is required';
     } else if (!passwordRegex.test(formData.password)) {
-      errors.password =
-        'Password must be at least 8 characters long and contain at least one letter and one number';
+      errors.password = 'Password must be at least 8 characters long and contain at least one letter and one number';
     }
 
     if (formData.confirmPassword !== formData.password) {
@@ -113,12 +99,10 @@ const Signup = () => {
 
     setFormErrors(errors);
 
-    // Return true if there are no errors
     return Object.values(errors).every((error) => !error);
   };
 
   const checkUsernameExists = async (username) => {
-    // Simulate an API call to check if the username exists
     const response = await fetch(`http://localhost:2999/check-username`, {
       method: 'POST',
       headers: {
@@ -132,7 +116,6 @@ const Signup = () => {
   };
 
   const checkEmailExists = async (email) => {
-    // Simulate an API call to check if the email exists
     const response = await fetch(`http://localhost:2999/check-email`, {
       method: 'POST',
       headers: {
@@ -147,7 +130,7 @@ const Signup = () => {
 
   const registerUser = async () => {
     try {
-      const response = await fetch(`http://localhost:2999/register/${referralid}`, {
+      const response = await fetch(`http://localhost:2999/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -161,11 +144,13 @@ const Signup = () => {
         }),
       });
 
-      // Check if response is not successful (status outside 200-299)
       if (!response.ok) {
         const errorMessage = await response.text();
         throw new Error(errorMessage || 'Registration failed');
       }
+
+      const result = await response.json();
+      Cookies.set('token', result.token, { expires: 7 });
 
       toast({
         title: 'Registration Successful',
@@ -173,9 +158,6 @@ const Signup = () => {
         duration: 3000,
         isClosable: true,
       });
-
-      const result = await response.json();
-      Cookies.set('authToken', result.token, { expires: 0.24 });
 
       navigate('/home');
     } catch (error) {
@@ -188,7 +170,7 @@ const Signup = () => {
         isClosable: true,
       });
     } finally {
-      setIsSubmitting(false); // Reset isSubmitting state after submission attempt
+      setIsSubmitting(false);
     }
   };
 
@@ -199,7 +181,6 @@ const Signup = () => {
       [id]: value,
     }));
 
-    // Live validation
     const errors = { ...formErrors };
 
     switch (id) {
@@ -227,8 +208,7 @@ const Signup = () => {
         if (!value.trim()) {
           errors.password = 'Password is required';
         } else if (!passwordRegex.test(value)) {
-          errors.password =
-            'Password must be at least 8 characters long and contain at least one letter and one number';
+          errors.password = 'Password must be at least 8 characters long and contain at least one letter and one number';
         } else {
           errors.password = '';
         }
@@ -260,10 +240,8 @@ const Signup = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsSubmitting(true);
 
-    setIsSubmitting(true); // Set isSubmitting to true on form submission
-
-    // Clear previous form errors
     setFormErrors({
       username: '',
       password: '',
@@ -273,14 +251,11 @@ const Signup = () => {
       lastName: '',
     });
 
-    // Validate form data
     const isFormValid = await validateFormData();
 
-    // Register user if form is valid
     if (isFormValid) {
       await registerUser();
 
-      // Clear form data after registration
       setFormData({
         username: '',
         password: '',
@@ -290,38 +265,36 @@ const Signup = () => {
         lastName: '',
       });
 
-      setIsSubmitting(false); // Reset isSubmitting state after successful submission
+      setIsSubmitting(false);
     } else {
-      setIsSubmitting(false); // Reset isSubmitting state after failed submission
+      setIsSubmitting(false);
     }
   };
 
   return (
     <ChakraProvider>
       <Box display="flex" height="100vh" flexDirection={{ base: 'column', md: 'row' }}>
-        {/* Left side with image and overlay (45%) */}
         <Box flex="0.82" position="relative">
-        <Image src={signupimage} alt="login Image" objectFit="cover" width="100%" height={{ base: '50vh', md: '100vh' }} />
-        <Box position="absolute" top="0" left="0" width="100%" height="100%" bg="rgba(0, 0, 0, 0.5)" color="white" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-          <Text fontSize="3xl" fontWeight="bold">Welcome to AlgoSprint</Text>
-          <Text fontSize="lg" mt={2} textAlign="center">Join us to improve your algorithms and coding skills.</Text>
-          <Box mt={4} display="flex" flexDirection="column" alignItems="center">
-            <Box display="flex" alignItems="center" mt={2}>
-              <Icon as={InfoIcon} w={6} h={6} mr={2} />
-              <Text>Learn from the best</Text>
-            </Box>
-            <Box display="flex" alignItems="center" mt={2}>
-              <Icon as={EmailIcon} w={6} h={6} mr={2} />
-              <Text>Get personalized feedback</Text>
-            </Box>
-            <Box display="flex" alignItems="center" mt={2}>
-              <Icon as={LockIcon} w={6} h={6} mr={2} />
-              <Text>Secure and private</Text>
+          <Image src={signupimage} alt="login Image" objectFit="cover" width="100%" height={{ base: '50vh', md: '100vh' }} />
+          <Box position="absolute" top="0" left="0" width="100%" height="100%" bg="rgba(0, 0, 0, 0.5)" color="white" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+            <Text fontSize="3xl" fontWeight="bold">Welcome to AlgoSprint</Text>
+            <Text fontSize="lg" mt={2} textAlign="center">Join us to improve your algorithms and coding skills.</Text>
+            <Box mt={4} display="flex" flexDirection="column" alignItems="center">
+              <Box display="flex" alignItems="center" mt={2}>
+                <Icon as={InfoIcon} w={6} h={6} mr={2} />
+                <Text>Learn from the best</Text>
+              </Box>
+              <Box display="flex" alignItems="center" mt={2}>
+                <Icon as={EmailIcon} w={6} h={6} mr={2} />
+                <Text>Get personalized feedback</Text>
+              </Box>
+              <Box display="flex" alignItems="center" mt={2}>
+                <Icon as={LockIcon} w={6} h={6} mr={2} />
+                <Text>Secure and private</Text>
+              </Box>
             </Box>
           </Box>
         </Box>
-      </Box>
-        {/* Right side with form (55%) */}
         <Box
           flex="1"
           display="flex"
@@ -473,7 +446,7 @@ const Signup = () => {
                 mt={8}
                 mx="auto"
                 display="block"
-                isLoading={isSubmitting} // Show loading state while submitting
+                isLoading={isSubmitting}
                 loadingText="Submitting"
               >
                 Sign Up

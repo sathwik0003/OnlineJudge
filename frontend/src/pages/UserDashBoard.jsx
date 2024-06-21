@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, VStack } from '@chakra-ui/react'
 import Dashboard from '@/components/DashBoard'
 import Header from '@/components/ui/Header'
 import Footer from '@/components/Footer'
+import Cookies from 'js-cookie'
 
 const UserDashBoard = () => {
+
   return (
     <VStack minHeight="100vh" spacing={0}>
       <Header />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
@@ -35,6 +35,7 @@ import { FaChevronRight, FaFire } from 'react-icons/fa';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie';
 
 // Import your form components here
 import UpdateProfileForm from './UpdateProfileForm';
@@ -118,6 +119,8 @@ const Dashboard = () => {
       draggable: true,
     });
   };
+
+
 
   return (
     <Box p={4} bg="gray.50" minHeight="100vh">

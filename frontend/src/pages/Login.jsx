@@ -19,6 +19,7 @@ import { EmailIcon, LockIcon, InfoIcon } from '@chakra-ui/icons';
 import signupimage from '../assets/algosprint_login.jpg';
 import sprintlogo from '../assets/algosprint_logo.jpeg';
 import wavy from '../assets/algosprint_back.jpg';
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const toast = useToast();
@@ -81,6 +82,8 @@ const Login = () => {
         isClosable: true,
       });
 
+      const result = await response.json();
+      Cookies.set('authToken', result.token, { expires: 0.24 });
       navigate('/home');
     } catch (error) {
       console.error('Error during login:', error.message);

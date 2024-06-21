@@ -126,7 +126,7 @@ app.post("/register/:referralCode?", async (req, res) => {
         // Store the token in a cookie
         res.cookie('token', token, { httpOnly: true });
 
-        res.status(201).send("User registered successfully");
+        res.status(201).json({ token: token, message: "User registered successfully" });
     } catch (error) {
         console.error(error);
         res.status(500).send("An error occurred");
@@ -163,7 +163,7 @@ app.post("/login", async (req, res) => {
         // Store the token in a cookie
         res.cookie('token', token, { httpOnly: true });
 
-        res.status(200).send("Logged in successfully");
+        res.status(201).json({ token: token, message: "User registered successfully" });
     } catch (error) {
         console.error(error);
         res.status(500).send("An error occurred");
