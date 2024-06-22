@@ -10,6 +10,7 @@ import UserDashBoard from './pages/UserDashBoard';
 import HomePage from './components/HomePage';
 import Home from './pages/Home';
 import UserDetails from './components/Trash';
+import AddProblem from './components/admin/AddProblem';
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/h" element={<HomePage/>} />
         <Route path="/home" element={<Home/>} />
         <Route path="/details" element={<UserDetails/>} />
+        <Route path="/admin/addproblem" element={<AddProblem/>} />
     </Routes>
     </>
   )

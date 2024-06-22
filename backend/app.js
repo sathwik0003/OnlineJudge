@@ -10,6 +10,8 @@ const cors = require('cors');
 const connectDB = require('./database/db');
 const User = require('./models/Users');
 const Referral = require('./models/Referrals');
+const Problem = require('./models/Problems')
+const Topic = require('./models/Topics')
 
 dotenv.config({
     path: './.env'
@@ -21,8 +23,14 @@ const port = 2999;
 // Connect to the database
 connectDB();
 
-app.use(cors());
-app.options('*', cors());
+const corsOptions = {
+    origin: 'http://localhost:5173', 
+    credentials: true, 
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 app.use(express.json());
 app.use(bodyParser.json());
@@ -194,9 +202,10 @@ app.post('/check-username', async (req, res) => {
 
 // Middleware to authenticate user using JWT
 function authenticateToken(req, res, next) {
-    const token = req.cookies.token;
+    const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
+        console.log("Access denied. No token provided.");
         return res.status(401).send("Access denied. No token provided.");
     }
 
@@ -205,13 +214,14 @@ function authenticateToken(req, res, next) {
         req.user = decoded;
         next();
     } catch (error) {
+        console.log("Invalid token", error);
         res.status(400).send("Invalid token");
     }
 }
 
 // Update profile endpoint
 app.post("/updateprofile", authenticateToken, async (req, res) => {
-    const { username, firstName,lastName, email } = req.body;
+    const { username, firstName, lastName } = req.body;
     const userId = req.user.userId;
 
     try {
@@ -224,7 +234,7 @@ app.post("/updateprofile", authenticateToken, async (req, res) => {
             user.firstName = firstName;
         }
         if (lastName) {
-            user.firstName = firstName;
+            user.lastName = lastName;
         }
 
         if (username) {
@@ -232,43 +242,32 @@ app.post("/updateprofile", authenticateToken, async (req, res) => {
                 return res.status(400).send("Invalid username format.");
             }
 
-            // Check if email already exists
+            // Check if username already exists
             const existingUser = await User.findOne({ username });
             if (existingUser && existingUser._id.toString() !== userId) {
-                return res.status(400).send("username already in use.");
+                return res.status(400).send("Username already in use.");
             }
 
             user.username = username;
-             // Generate a new JWT token
-            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-             // Store the new token in a cookie
-            res.cookie('token', token, { httpOnly: true });
-
-        }
-        if (email) {
-            if (!emailRegex.test(email)) {
-                return res.status(400).send("Invalid email format.");
-            }
-
-            // Check if email already exists
-            const existingUser = await User.findOne({ email });
-            if (existingUser && existingUser._id.toString() !== userId) {
-                return res.status(400).send("Email already in use.");
-            }
-
-            user.email = email;
         }
 
         user.lastUpdate = new Date();
         await user.save();
 
-        res.status(200).send("Profile updated successfully");
+        // Generate a new JWT token
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Clear the existing token and send the new token in the response
+        res.clearCookie('token');
+        res.cookie('token', token, { httpOnly: true });
+
+        res.status(200).send({ message: "Profile updated successfully", token: token });
     } catch (error) {
         console.error(error);
         res.status(500).send("An error occurred");
     }
 });
+
 
 // Change password endpoint
 app.post("/changepassword", authenticateToken, async (req, res) => {
@@ -312,6 +311,59 @@ app.post("/changepassword", authenticateToken, async (req, res) => {
         res.status(500).send("An error occurred");
     }
 });
+
+app.get("/userdetails", authenticateToken, async (req, res) => {
+    const userId = req.user.userId;
+
+    try {
+        const user = await User.findById(userId).select('-password');
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("An error occurred");
+    }
+});
+
+app.post('/add', async (req, res) => {
+    try {
+      const { title, problem_statement, input_description, output_description, sample_cases, constraints, hints, topics, locked_test_cases, admin_solution } = req.body;
+  
+      // Process topics
+      const topicIds = await Promise.all(topics.map(async (topicName) => {
+        let topic = await Topic.findOne({ topic: topicName });
+        if (!topic) {
+          topic = new Topic({ topic: topicName, description: `Description for ${topicName}`, created_at: new Date(), updated_at: new Date() });
+          await topic.save();
+        }
+        return topic._id;
+      }));
+  
+      const newProblem = new Problem({
+        title,
+        problem_statement,
+        input_description,
+        output_description,
+        sample_cases,
+        constraints,
+        hints,
+        topics: topicIds,
+        locked_test_cases,
+        admin_solution,
+        created_at: new Date(),
+        updated_at: new Date()
+      });
+  
+      const savedProblem = await newProblem.save();
+      res.status(201).json(savedProblem);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);

@@ -46,13 +46,44 @@ const Dashboard = () => {
   const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isSubmissionsOpen, onOpen: onSubmissionsOpen, onClose: onSubmissionsClose } = useDisclosure();
   const [activeForm, setActiveForm] = useState(null);
+  const [user, setUser] = useState({ username: '',  email: '',});
 
-  // Mock data
-  const user = {
-    name: 'John Doe',
-    email: 'john@example.com',
-  };
+  const authToken = Cookies.get('authToken'); 
 
+  async function getUserDetails() {
+    try {
+      const response = await fetch('http://localhost:2999/userdetails', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        credentials: 'include'
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+  
+      const userDetails = await response.json();
+      setUser({
+        username: userDetails.username,
+        email: userDetails.email,
+      });
+    } catch (error) {
+      console.error('Error fetching user details:', error.message);
+      toast.error(`Failed to fetch user details: ${error.message}`);
+    }
+  }
+  
+  useEffect(() => {
+    if (authToken) {
+      getUserDetails();
+    }
+  }, [authToken]);
+
+  
   const submissions = [
     { id: 1, problem: 'Two Sum', date: '2024-06-15', status: 'Accepted' },
     { id: 2, problem: 'Reverse String', date: '2024-06-14', status: 'Wrong Answer' },
@@ -130,9 +161,9 @@ const Dashboard = () => {
           <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
             <Flex align="center" justify="space-between" wrap="wrap">
               <HStack spacing={4} mb={{ base: 4, md: 0 }}>
-                <Avatar name={user.name} bg="teal.500" />
+                <Avatar name={user.username} bg="teal.500" />
                 <VStack align="start" spacing={1}>
-                  <Text fontSize="2xl" fontWeight="bold">{user.name}</Text>
+                  <Text fontSize="2xl" fontWeight="bold">{user.username}</Text>
                   <Text color="gray.600">{user.email}</Text>
                 </VStack>
               </HStack>
