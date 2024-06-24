@@ -328,15 +328,31 @@ app.get("/userdetails", authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/add', async (req, res) => {
+app.post('/addproblem', async (req, res) => {
     try {
-      const { title, problem_statement, input_description, output_description, sample_cases, constraints, hints, topics, locked_test_cases, admin_solution } = req.body;
+      const { 
+        title, 
+        problem_statement, 
+        input_description, 
+        output_description, 
+        sample_cases, 
+        constraints, 
+        hints, 
+        topics, 
+        locked_test_cases, 
+        admin_solution 
+      } = req.body;
   
       // Process topics
       const topicIds = await Promise.all(topics.map(async (topicName) => {
         let topic = await Topic.findOne({ topic: topicName });
         if (!topic) {
-          topic = new Topic({ topic: topicName, description: `Description for ${topicName}`, created_at: new Date(), updated_at: new Date() });
+          topic = new Topic({ 
+            topic: topicName, 
+            description: `Description for ${topicName}`, 
+            created_at: new Date(), 
+            updated_at: new Date() 
+          });
           await topic.save();
         }
         return topic._id;
@@ -363,7 +379,6 @@ app.post('/add', async (req, res) => {
       res.status(400).json({ error: err.message });
     }
   });
-
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);

@@ -11,6 +11,9 @@ import HomePage from './components/HomePage';
 import Home from './pages/Home';
 import UserDetails from './components/Trash';
 import AddProblem from './components/admin/AddProblem';
+import Problem from './components/Problem';
+import Editor from './components/Editor';
+import EditProblem from './components/EditProblem';
 
 function App() {
 
@@ -27,6 +30,9 @@ function App() {
         <Route path="/home" element={<Home/>} />
         <Route path="/details" element={<UserDetails/>} />
         <Route path="/admin/addproblem" element={<AddProblem/>} />
+        <Route path="/user/problem" element={<Problem/>} />
+        <Route path="/user/editor" element={<Editor/>} />
+        <Route path="/user/problemeditor" element={<EditProblem/>} />
     </Routes>
     </>
   )

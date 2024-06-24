@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
   Flex,
@@ -26,8 +27,9 @@ import {
   ListItem,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { SearchIcon, HamburgerIcon, ChevronDownIcon } from '@chakra-ui/icons';
+import { SearchIcon, HamburgerIcon } from '@chakra-ui/icons';
 import debounce from 'lodash/debounce';
+import Cookies from 'js-cookie';
 import algologo from '../../assets/algosprint_logo.jpeg'
 
 // Mock data for search
@@ -44,7 +46,6 @@ const searchData = [
   "Object-Oriented Design",
 ];
 
-// You'll need to create this icon or import it from a library
 const CoinIcon = (props) => (
   <svg
     width="24"
@@ -55,8 +56,8 @@ const CoinIcon = (props) => (
     {...props}
   >
     <circle cx="12" cy="12" r="10" fill="currentColor" />
-    <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="14px" fontWeight="bold">
-      $
+    <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="white" fontSize="14px" fontWeight="bold" >
+      A
     </text>
   </svg>
 );
@@ -66,16 +67,51 @@ const Header = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef(null);
+  const [user, setUser] = useState({ coins:''});
+
+  const authToken = Cookies.get('authToken'); 
+
+  async function getUserDetails() {
+    try {
+      const response = await fetch('http://localhost:2999/userdetails', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        credentials: 'include'
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+  
+      const userDetails = await response.json();
+      setUser({
+        coins: userDetails.coins,
+      });
+    } catch (error) {
+      console.error('Error fetching user details:', error.message);
+      toast.error(`Failed to fetch user details: ${error.message}`);
+    }
+  }
+  
+  useEffect(() => {
+    if (authToken) {
+      getUserDetails();
+    }
+  }, [authToken]);
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   const NavItems = () => (
     <>
-      <Button variant="ghost" _hover={{ bg: 'blue.50' }}>Dashboard</Button>
-      <Button variant="ghost" _hover={{ bg: 'blue.50' }}>Refer a Friend</Button>
-      <Button variant="ghost" _hover={{ bg: 'blue.50' }}>Assignments</Button>
-      <Button variant="ghost" _hover={{ bg: 'blue.50' }}>Contests</Button>
+      <Button as={RouterLink} to="/user/dashboard" variant="ghost" _hover={{ bg: 'blue.50' }}>Dashboard</Button>
+      <Button as={RouterLink} to="/refer" variant="ghost" _hover={{ bg: 'blue.50' }}>Refer a Friend</Button>
+      <Button as={RouterLink} to="/assignments" variant="ghost" _hover={{ bg: 'blue.50' }}>Assignments</Button>
+      <Button as={RouterLink} to="/contests" variant="ghost" _hover={{ bg: 'blue.50' }}>Contests</Button>
     </>
   );
 
@@ -117,9 +153,11 @@ const Header = () => {
             alt="AlgoSprint Logo"
             mr={3}
           />
-          <Text fontSize="xl" fontWeight="bold" color="#127d7e">
+         <RouterLink to='/home'>
+         <Text fontSize="xl" fontWeight="bold" color="#127d7e">
             AlgoSprint
           </Text>
+         </RouterLink>
         </Flex>
 
         <Box flex={1} maxWidth="400px" mx={4}>
@@ -167,7 +205,7 @@ const Header = () => {
           <NavItems />
           <Flex align="center" bg="yellow.100" px={3} py={2} borderRadius="md">
             <CoinIcon color="yellow.500" mr={2} />
-            <Text fontWeight="bold">1000 ASCoins</Text>
+            <Text fontWeight="bold">{user.coins} ASCoins</Text>
           </Flex>
           <Button colorScheme="red">
             Logout
@@ -193,7 +231,7 @@ const Header = () => {
               <NavItems />
               <Flex align="center" bg="yellow.100" px={3} py={2} borderRadius="md">
                 <CoinIcon color="yellow.500" mr={2} />
-                <Text fontWeight="bold">1000 ASCoins</Text>
+                <Text fontWeight="bold">{user.coins} ASCoins</Text>
               </Flex>
               <Button colorScheme="red">
                 Logout

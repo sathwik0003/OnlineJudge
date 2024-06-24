@@ -20,16 +20,15 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
-import axios from "axios";
 
 const AddProblem = () => {
   const [title, setTitle] = useState("");
   const [problemStatement, setProblemStatement] = useState("");
   const [inputDescription, setInputDescription] = useState("");
   const [outputDescription, setOutputDescription] = useState("");
-  const [sampleCases, setSampleCases] = useState([{ input: "", output: "" }]);
+  const [sampleCases, setSampleCases] = useState([{ sample_input: "", sample_output: "" }]);
   const [constraints, setConstraints] = useState("");
-  const [hints, setHints] = useState([""]);
+  const [hints, setHints] = useState([{ hints: "" }]);
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [lockedTestCases, setLockedTestCases] = useState([
     { input: "", output: "" },
@@ -52,6 +51,8 @@ const AddProblem = () => {
     "Searching",
     "Recursion",
     "Backtracking",
+    "Basic Math",
+    "Input/Output",
   ]);
 
   const programmingLanguages = [
@@ -65,7 +66,7 @@ const AddProblem = () => {
   const toast = useToast();
 
   const handleAddSampleCase = () => {
-    setSampleCases([...sampleCases, { input: "", output: "" }]);
+    setSampleCases([...sampleCases, { sample_input: "", sample_output: "" }]);
   };
 
   const handleRemoveSampleCase = (index) => {
@@ -74,7 +75,7 @@ const AddProblem = () => {
   };
 
   const handleAddHint = () => {
-    setHints([...hints, ""]);
+    setHints([...hints, { hints: "" }]);
   };
 
   const handleRemoveHint = (index) => {
@@ -117,7 +118,19 @@ const AddProblem = () => {
     };
 
     try {
-      await axios.post("/problems/add", newProblem);
+      const response = await fetch("http://localhost:2999/addproblem", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newProblem),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       toast({
         title: "Problem added successfully",
         status: "success",
@@ -177,19 +190,19 @@ const AddProblem = () => {
                 <HStack key={index} spacing={2} mt={2}>
                   <Input
                     placeholder="Sample Input"
-                    value={sampleCase.input}
+                    value={sampleCase.sample_input}
                     onChange={(e) => {
                       const newSampleCases = [...sampleCases];
-                      newSampleCases[index].input = e.target.value;
+                      newSampleCases[index].sample_input = e.target.value;
                       setSampleCases(newSampleCases);
                     }}
                   />
                   <Input
                     placeholder="Sample Output"
-                    value={sampleCase.output}
+                    value={sampleCase.sample_output}
                     onChange={(e) => {
                       const newSampleCases = [...sampleCases];
-                      newSampleCases[index].output = e.target.value;
+                      newSampleCases[index].sample_output = e.target.value;
                       setSampleCases(newSampleCases);
                     }}
                   />
@@ -223,10 +236,10 @@ const AddProblem = () => {
                 <HStack key={index} mt={2}>
                   <Input
                     placeholder="Hint"
-                    value={hint}
+                    value={hint.hints}
                     onChange={(e) => {
                       const newHints = [...hints];
-                      newHints[index] = e.target.value;
+                      newHints[index].hints = e.target.value;
                       setHints(newHints);
                     }}
                   />
