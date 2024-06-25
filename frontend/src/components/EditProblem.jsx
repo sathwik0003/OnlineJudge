@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
 import { Box, Button, HStack, VStack, useColorModeValue } from '@chakra-ui/react';
 import { FaEye, FaEyeSlash, FaCode } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
 import Problem from './Problem'
 import Editor from './Editor';
+
 
 const EditProblem = () => {
   const [showProblem, setShowProblem] = useState(true);
   const [showEditor, setShowEditor] = useState(true);
 
+  const [title, setTitle] = useState("");
+  const [problemStatement, setProblemStatement] = useState("");
+  const [inputDescription, setInputDescription] = useState("");
+  const [outputDescription, setOutputDescription] = useState("");
+  const [sampleCases, setSampleCases] = useState([{ sample_input: "", sample_output: "" }]);
+  const [constraints, setConstraints] = useState("");
+  const [hints, setHints] = useState([{ hints: "" }]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [topics, setTopics] = useState([''])
   const bgColor = useColorModeValue('gray.50', 'gray.900');
+
+
+
+
 
   return (
     <Box p={[4, 6, 8]} bg={bgColor} minHeight="100vh">

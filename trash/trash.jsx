@@ -1,143 +1,153 @@
 import React, { useState, useEffect } from 'react';
-import { VStack, FormControl, FormLabel, Input, Button, useToast } from '@chakra-ui/react';
-import Cookies from 'js-cookie';
+import {
+  Box, Heading, Text, VStack, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon,
+  Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, useDisclosure,
+  Badge, useColorModeValue
+} from '@chakra-ui/react';
+import { FaLock, FaUnlock, FaLightbulb, FaTags } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
 
-const UpdateProfileForm = ({ onClose }) => {
-  const [user, setUser] = useState({ username: '', firstName: '', lastName: '' });
-  const [isUpdating, setIsUpdating] = useState(false);
-  const toast = useToast();
+const ProblemComponent = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [unlockedHints, setUnlockedHints] = useState([]);
+  const [problem, setProblem] = useState({
+    title: '',
+    problem_statement: '',
+    input_description: '',
+    output_description: '',
+    sample_cases: [],
+    constraints: '',
+    hints: [],
+    topics: []
+  });
 
-  const authToken = Cookies.get('authToken'); 
+  const { problemId } = useParams();
 
   useEffect(() => {
-    if (authToken) {
-      getUserDetails();
-    }
-  }, [authToken]);
+    async function getProblemDetails() {
+      try {
+        const response = await fetch(`http://localhost:2999/problemdetails/${problemId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
 
-  async function getUserDetails() {
-    try {
-      const response = await fetch('http://localhost:2999/userdetails', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        credentials: 'include'
-      });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        const problemDetails = await response.json();
+        setProblem(problemDetails);
+      } catch (error) {
+        console.error('Error fetching problem details:', error.message);
+        // Handle the error appropriately, e.g., show a toast or an error message
       }
-
-      const userDetails = await response.json();
-      setUser({
-        username: userDetails.username,
-        firstName: userDetails.firstName,
-        lastName: userDetails.lastName,
-      });
-    } catch (error) {
-      console.error('Error fetching user details:', error.message);
-      toast({
-        title: 'Error',
-        description: `Failed to fetch user details: ${error.message}`,
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
     }
-  }
 
-  const updateUserProfile = async () => {
-    setIsUpdating(true);
+    getProblemDetails();
+  }, [problemId]);
 
-    try {
-      const response = await fetch('http://localhost:2999/updateprofile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify(user),
-      });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(errorMessage || 'Updating failed');
-      }
-
-      const result = await response.json();
-      Cookies.remove('authToken'); // Clear the existing cookie
-      Cookies.set('authToken', result.token, { expires: 0.24 }); // Update the cookie with the new token
-
-      toast({
-        title: 'Profile Updated Successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-
-    } catch (error) {
-      console.error('Error during profile update:', error.message);
-      toast({
-        title: 'Update Failed',
-        description: error.message || 'Something went wrong',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setIsUpdating(false);
-    }
+  const unlockHint = (hintIndex) => {
+    setUnlockedHints([...unlockedHints, hintIndex]);
+    onClose();
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser((prevUser) => ({
-      ...prevUser,
-      [name]: value,
-    }));
-  };
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.600');
 
   return (
-    <VStack spacing={4}>
-      <FormControl>
-        <FormLabel>Username</FormLabel>
-        <Input
-          name="username"
-          placeholder="Enter your username"
-          value={user.username}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>First Name</FormLabel>
-        <Input
-          name="firstName"
-          placeholder="Enter your first name"
-          value={user.firstName}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <FormControl>
-        <FormLabel>Last Name</FormLabel>
-        <Input
-          name="lastName"
-          placeholder="Enter your last name"
-          value={user.lastName}
-          onChange={handleChange}
-        />
-      </FormControl>
-      <Button
-        colorScheme="blue"
-        onClick={updateUserProfile}
-        isLoading={isUpdating}
-      >
-        Update Profile
-      </Button>
-    </VStack>
+    <Box p={6} borderWidth={1} borderRadius="lg" bg={bgColor} borderColor={borderColor} boxShadow="lg">
+      <VStack align="stretch" spacing={6}>
+        <Heading as="h1" size="xl" color={useColorModeValue('blue.600', 'blue.300')}>{problem.title}</Heading>
+        <Text fontSize="lg">{problem.problem_statement}</Text>
+        
+        <Box>
+          <Heading as="h2" size="md" mb={2} color={useColorModeValue('green.600', 'green.300')}>Input Description</Heading>
+          <Text>{problem.input_description}</Text>
+        </Box>
+        
+        <Box>
+          <Heading as="h2" size="md" mb={2} color={useColorModeValue('green.600', 'green.300')}>Output Description</Heading>
+          <Text>{problem.output_description}</Text>
+        </Box>
+        
+        <Box>
+          <Heading as="h2" size="md" mb={2} color={useColorModeValue('red.600', 'red.300')}>Constraints</Heading>
+          <Text whiteSpace="pre-line">{problem.constraints}</Text>
+        </Box>
+        
+        <Box>
+          <Heading as="h2" size="md" mb={4} color={useColorModeValue('purple.600', 'purple.300')}>Sample Test Cases</Heading>
+          {problem.sample_cases.map((testCase, index) => (
+            <Box key={index} mb={4} p={4} borderWidth={1} borderRadius="md" bg={useColorModeValue('gray.50', 'gray.700')}>
+              <Text fontWeight="bold">Input:</Text>
+              <Text fontFamily="monospace" my={2}>{testCase.sample_input}</Text>
+              <Text fontWeight="bold">Output:</Text>
+              <Text fontFamily="monospace" my={2}>{testCase.sample_output}</Text>
+            </Box>
+          ))}
+        </Box>
+        
+        <Accordion allowToggle>
+          <AccordionItem>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  <Heading size="md" display="flex" alignItems="center">
+                    <FaLightbulb style={{ marginRight: '8px' }} /> Hints
+                  </Heading>
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pb={4}>
+              {problem.hints.map((hint, index) => (
+                <Button
+                  key={index}
+                  leftIcon={unlockedHints.includes(index) ? <FaUnlock /> : <FaLock />}
+                  onClick={unlockedHints.includes(index) ? null : onOpen}
+                  mb={2}
+                  mr={2}
+                  colorScheme={unlockedHints.includes(index) ? "green" : "gray"}
+                >
+                  {unlockedHints.includes(index) ? hint : `Hint ${index + 1}`}
+                </Button>
+              ))}
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion>
+        
+        <Box>
+          <Heading as="h2" size="md" mb={2} display="flex" alignItems="center">
+            <FaTags style={{ marginRight: '8px' }} /> Topics
+          </Heading>
+          {problem.topics.map((topic, index) => (
+            <Badge key={index} mr={2} mb={2} colorScheme="blue" fontSize="0.8em" px={2} py={1} borderRadius="full">
+              {topic.name}
+            </Badge>
+          ))}
+        </Box>
+      </VStack>
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Unlock Hint</ModalHeader>
+          <ModalBody>
+            Do you want to unlock this hint?
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={() => unlockHint(problem.hints.findIndex((_, i) => !unlockedHints.includes(i)))}>
+              Yes, unlock
+            </Button>
+            <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Box>
   );
 };
 
-export default UpdateProfileForm;
+export default ProblemComponent;

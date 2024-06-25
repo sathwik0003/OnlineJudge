@@ -11,7 +11,6 @@ const connectDB = require('./database/db');
 const User = require('./models/Users');
 const Referral = require('./models/Referrals');
 const Problem = require('./models/Problems')
-const Topic = require('./models/Topics')
 
 dotenv.config({
     path: './.env'
@@ -328,6 +327,23 @@ app.get("/userdetails", authenticateToken, async (req, res) => {
     }
 });
 
+app.get("/problemdetails/:problemId", async (req, res) => {
+    const problemId = req.params.problemId;
+
+    try {
+        const problem = await Problem.findById(problemId).populate('topics');
+        if (!problem) {
+            return res.status(404).json({ message: "Problem not found" });
+        }
+
+        res.status(200).json(problem);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred", error: error.message });
+    }
+});
+
+
 app.post('/addproblem', async (req, res) => {
     try {
       const { 
@@ -343,20 +359,7 @@ app.post('/addproblem', async (req, res) => {
         admin_solution 
       } = req.body;
   
-      // Process topics
-      const topicIds = await Promise.all(topics.map(async (topicName) => {
-        let topic = await Topic.findOne({ topic: topicName });
-        if (!topic) {
-          topic = new Topic({ 
-            topic: topicName, 
-            description: `Description for ${topicName}`, 
-            created_at: new Date(), 
-            updated_at: new Date() 
-          });
-          await topic.save();
-        }
-        return topic._id;
-      }));
+      
   
       const newProblem = new Problem({
         title,
@@ -366,7 +369,7 @@ app.post('/addproblem', async (req, res) => {
         sample_cases,
         constraints,
         hints,
-        topics: topicIds,
+        topics,
         locked_test_cases,
         admin_solution,
         created_at: new Date(),

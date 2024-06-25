@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, VStack, HStack, Select, Switch, Button, Textarea, Text, useColorMode, useColorModeValue } from '@chakra-ui/react';
+import { Box, VStack, HStack, Select, Button, Textarea, Text, useColorModeValue } from '@chakra-ui/react';
 import { FaPlay, FaCheck, FaCode } from 'react-icons/fa';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-javascript';
@@ -27,7 +27,6 @@ const Editor = () => {
   const [code, setCode] = useState(sampleCode.javascript);
   const [customInput, setCustomInput] = useState('nums = [2, 7, 11, 15], target = 9');
   const [output, setOutput] = useState('');
-  const { colorMode, toggleColorMode } = useColorMode();
 
   const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
@@ -49,26 +48,24 @@ const Editor = () => {
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const textColor = useColorModeValue('gray.800', 'white');
+  const inputBgColor = useColorModeValue('gray.50', 'gray.700');
 
   return (
     <Box p={6} borderWidth={1} borderRadius="lg" bg={bgColor} borderColor={borderColor} boxShadow="lg">
       <VStack spacing={6} align="stretch">
         <HStack justifyContent="space-between">
-          <Select value={language} onChange={handleLanguageChange} width="200px">
+          <Select value={language} onChange={handleLanguageChange} width="200px" color={textColor}>
             <option value="javascript">JavaScript</option>
             <option value="python">Python</option>
             <option value="java">Java</option>
           </Select>
-          <HStack>
-            <Text>{colorMode === 'light' ? 'Light' : 'Dark'} Mode</Text>
-            <Switch isChecked={colorMode === 'dark'} onChange={toggleColorMode} />
-          </HStack>
         </HStack>
         
         <Box borderWidth={1} borderRadius="md" overflow="hidden">
           <AceEditor
             mode={language}
-            theme={colorMode === 'light' ? 'github' : 'monokai'}
+            theme={useColorModeValue('github', 'monokai')}
             onChange={setCode}
             value={code}
             name="code-editor"
@@ -92,21 +89,22 @@ const Editor = () => {
         </HStack>
         
         <Box>
-          <Text fontWeight="bold" mb={2}>Custom Input:</Text>
+          <Text fontWeight="bold" mb={2} color={textColor}>Custom Input:</Text>
           <Textarea 
             value={customInput} 
             onChange={(e) => setCustomInput(e.target.value)} 
             placeholder="Enter custom input here"
-            bg={useColorModeValue('gray.50', 'gray.700')}
+            bg={inputBgColor}
+            color={textColor}
             mb={2}
           />
           <Button leftIcon={<FaCode />} onClick={handleCustomRun}>Run Custom Input</Button>
         </Box>
         
         <Box>
-          <Text fontWeight="bold" mb={2}>Output:</Text>
-          <Box p={4} borderWidth={1} borderRadius="md" bg={useColorModeValue('gray.50', 'gray.700')}>
-            <Text fontFamily="monospace" whiteSpace="pre-wrap">{output}</Text>
+          <Text fontWeight="bold" mb={2} color={textColor}>Output:</Text>
+          <Box p={4} borderWidth={1} borderRadius="md" bg={inputBgColor}>
+            <Text fontFamily="monospace" whiteSpace="pre-wrap" color={textColor}>{output}</Text>
           </Box>
         </Box>
       </VStack>

@@ -18,6 +18,7 @@ import {
   TagLabel,
   TagCloseButton,
   Flex,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon } from "@chakra-ui/icons";
 
@@ -148,9 +149,10 @@ const AddProblem = () => {
     }
   };
 
+  const bgColor = useColorModeValue('white', 'gray.800');
   return (
     <Container maxW="container.xl" py={8}>
-      <Box bg="white" shadow="md" borderRadius="lg" p={6}>
+      <Box bg={bgColor} shadow="md" borderRadius="lg" p={6}>
         <Heading mb={6}>Add New Problem</Heading>
         <form onSubmit={handleSubmit}>
           <VStack spacing={6} align="stretch">

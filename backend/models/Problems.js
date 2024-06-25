@@ -41,9 +41,8 @@ const ProblemSchema = new Schema({
     }
   }],
   topics: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Topic',
-    required: true
+      type:String,
+       required: true
   }],
   locked_test_cases: [{
     input: {

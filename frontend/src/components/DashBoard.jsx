@@ -28,6 +28,7 @@ import {
   StatLabel,
   StatNumber,
   StatGroup,
+  useColorModeValue
 } from '@chakra-ui/react';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
@@ -47,6 +48,8 @@ const Dashboard = () => {
   const { isOpen: isSubmissionsOpen, onOpen: onSubmissionsOpen, onClose: onSubmissionsClose } = useDisclosure();
   const [activeForm, setActiveForm] = useState(null);
   const [user, setUser] = useState({ username: '',  email: '',});
+
+  const bgColor = useColorModeValue('white', 'gray.800');
 
   const authToken = Cookies.get('authToken'); 
 
@@ -154,11 +157,11 @@ const Dashboard = () => {
 
 
   return (
-    <Box p={4} bg="gray.50" minHeight="100vh">
+    <Box p={4} bg={bgColor} minHeight="100vh">
       <ToastContainer />
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
         <VStack align="stretch" spacing={8}>
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+          <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
             <Flex align="center" justify="space-between" wrap="wrap">
               <HStack spacing={4} mb={{ base: 4, md: 0 }}>
                 <Avatar name={user.username} bg="teal.500" />
@@ -181,7 +184,7 @@ const Dashboard = () => {
             </Flex>
           </Box>
 
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+          <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold" mb={4}>Last 5 Submissions</Text>
             <Box overflowX="auto">
               <Table variant="simple" size="sm">
@@ -221,7 +224,7 @@ const Dashboard = () => {
             </Button>
           </Box>
 
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+          <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold" mb={4}>Problem Solving Progress</Text>
             <Flex direction={{ base: "column", md: "row" }} justify="space-between" align="center">
               <Box width={{ base: "100%", md: "200px" }} height="200px" mb={{ base: 4, md: 0 }}>
@@ -258,7 +261,7 @@ const Dashboard = () => {
         </VStack>
 
         <VStack align="stretch" spacing={8}>
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+          <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold" mb={4}>Problem Solving Streak</Text>
             <CalendarHeatmap
               startDate={new Date('2024-01-01')}
@@ -278,7 +281,7 @@ const Dashboard = () => {
             </StatGroup>
           </Box>
 
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+          <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold" mb={4}>Monthly Problem Solving</Text>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={monthlyData}>
@@ -290,7 +293,7 @@ const Dashboard = () => {
             </ResponsiveContainer>
           </Box>
 
-          <Box bg="white" p={6} borderRadius="lg" boxShadow="md">
+          <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
             <Text fontSize="xl" fontWeight="bold" mb={4}>Topic-wise Solutions</Text>
             <Box overflowX="auto">
               <Table variant="simple" size="sm">

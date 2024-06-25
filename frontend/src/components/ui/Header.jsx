@@ -26,11 +26,13 @@ import {
   List,
   ListItem,
   useColorModeValue,
+  useColorMode,
+  Switch,
 } from '@chakra-ui/react';
-import { SearchIcon, HamburgerIcon } from '@chakra-ui/icons';
+import { SearchIcon, HamburgerIcon, MoonIcon, SunIcon } from '@chakra-ui/icons';
 import debounce from 'lodash/debounce';
 import Cookies from 'js-cookie';
-import algologo from '../../assets/algosprint_logo.jpeg'
+import algologo from '../../assets/algosprint_logo.jpeg';
 
 // Mock data for search
 const searchData = [
@@ -67,7 +69,8 @@ const Header = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef(null);
-  const [user, setUser] = useState({ coins:''});
+  const [user, setUser] = useState({ coins: '' });
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const authToken = Cookies.get('authToken'); 
 
@@ -93,7 +96,8 @@ const Header = () => {
       });
     } catch (error) {
       console.error('Error fetching user details:', error.message);
-      toast.error(`Failed to fetch user details: ${error.message}`);
+      // Assuming you have a toast notification system
+      // toast.error(`Failed to fetch user details: ${error.message}`);
     }
   }
   
@@ -105,13 +109,14 @@ const Header = () => {
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const textColor = useColorModeValue('gray.800', 'white');
 
   const NavItems = () => (
     <>
-      <Button as={RouterLink} to="/user/dashboard" variant="ghost" _hover={{ bg: 'blue.50' }}>Dashboard</Button>
-      <Button as={RouterLink} to="/refer" variant="ghost" _hover={{ bg: 'blue.50' }}>Refer a Friend</Button>
-      <Button as={RouterLink} to="/assignments" variant="ghost" _hover={{ bg: 'blue.50' }}>Assignments</Button>
-      <Button as={RouterLink} to="/contests" variant="ghost" _hover={{ bg: 'blue.50' }}>Contests</Button>
+      <Button as={RouterLink} to="/user/dashboard" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Dashboard</Button>
+      <Button as={RouterLink} to="/refer" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Refer a Friend</Button>
+      <Button as={RouterLink} to="/assignments" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Assignments</Button>
+      <Button as={RouterLink} to="/contests" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Contests</Button>
     </>
   );
 
@@ -189,7 +194,7 @@ const Header = () => {
                     <ListItem
                       key={index}
                       padding={3}
-                      _hover={{ bg: "blue.50" }}
+                      _hover={{ bg: useColorModeValue("blue.50", "blue.900") }}
                       cursor="pointer"
                     >
                       {result}
@@ -203,13 +208,23 @@ const Header = () => {
 
         <HStack spacing={4} display={{ base: 'none', md: 'flex' }}>
           <NavItems />
-          <Flex align="center" bg="yellow.100" px={3} py={2} borderRadius="md">
-            <CoinIcon color="yellow.500" mr={2} />
-            <Text fontWeight="bold">{user.coins} ASCoins</Text>
+          <Flex align="center" bg={useColorModeValue('yellow.100', 'yellow.800')} px={3} py={2} borderRadius="md">
+            <CoinIcon color={useColorModeValue('yellow.500', 'yellow.200')} mr={2} />
+            <Text fontWeight="bold" color={textColor}>{user.coins} ASCoins</Text>
           </Flex>
           <Button colorScheme="red">
             Logout
           </Button>
+          <Flex align="center">
+            <SunIcon color={textColor} />
+            <Switch
+              ml={2}
+              mr={2}
+              isChecked={colorMode === 'dark'}
+              onChange={toggleColorMode}
+            />
+            <MoonIcon color={textColor} />
+          </Flex>
         </HStack>
 
         <IconButton
@@ -229,13 +244,23 @@ const Header = () => {
           <DrawerBody>
             <VStack spacing={4} align="stretch">
               <NavItems />
-              <Flex align="center" bg="yellow.100" px={3} py={2} borderRadius="md">
-                <CoinIcon color="yellow.500" mr={2} />
-                <Text fontWeight="bold">{user.coins} ASCoins</Text>
+              <Flex align="center" bg={useColorModeValue('yellow.100', 'yellow.800')} px={3} py={2} borderRadius="md">
+                <CoinIcon color={useColorModeValue('yellow.500', 'yellow.200')} mr={2} />
+                <Text fontWeight="bold" color={textColor}>{user.coins} ASCoins</Text>
               </Flex>
               <Button colorScheme="red">
                 Logout
               </Button>
+              <Flex align="center">
+                <SunIcon color={textColor} />
+                <Switch
+                  ml={2}
+                  mr={2}
+                  isChecked={colorMode === 'dark'}
+                  onChange={toggleColorMode}
+                />
+                <MoonIcon color={textColor} />
+              </Flex>
             </VStack>
           </DrawerBody>
         </DrawerContent>
