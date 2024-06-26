@@ -34,6 +34,18 @@ const ProblemSchema = new Schema({
     type: String,
     required: true
   },
+  level:{
+    type: String,
+    required: true
+  },
+  submissions:{
+    type: Number,
+    default:0
+  },
+  succesful:{
+    type:Number,
+    default:0
+  },
   hints: [{
     hints: {
       type: String,

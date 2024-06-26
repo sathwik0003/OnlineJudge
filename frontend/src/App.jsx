@@ -15,6 +15,8 @@ import Problem from './components/Problem';
 import Editor from './components/Editor';
 import EditProblem from './components/EditProblem';
 import ProblemEditor from './pages/ProblemEditor';
+import AllProblems from './components/AllProblems';
+import AllProblemsPage from './pages/AllProbelmsPage';
 
 function App() {
 
@@ -35,6 +37,7 @@ function App() {
         <Route path="/user/editor" element={<Editor/>} />
         {/* <Route path="/user/problemeditor/:problemId" element={<EditProblem/>} /> */}
         <Route path="/user/problemeditor/:problemId" element={<ProblemEditor/>} />
+        <Route path="/user/problems" element={<AllProblemsPage/>} />
     </Routes>
     </>
   )
