@@ -74,34 +74,36 @@ app.post('/submit/:problemId', async (req, res) => {
         }
 
         const filePath = generateFile(language, code);
+        let results = [];
+        let allPassed = true;
 
-        for (let testCase of problem.locked_test_cases) {
+        for (let i = 0; i < problem.locked_test_cases.length; i++) {
+            const testCase = problem.locked_test_cases[i];
             const inputPath = generateInputFile(testCase.input);
             const output = await executeCpp(filePath, inputPath);
             
-            if (output.trim() !== testCase.output.trim()) {
-                return res.json({ 
-                    success: false, 
-                    message: "Wrong Answer", 
-                    failedTestCase: {
-                        input: testCase.input,
-                        expectedOutput: testCase.output,
-                        yourOutput: output
-                    }
-                });
-            }
+            const passed = output.trim() === testCase.output.trim();
+            results.push({ testCase: i + 1, passed });
+            if (!passed) allPassed = false;
         }
 
-        // If all test cases pass
-        problem.submissions += 1;
-        problem.succesful += 1;
-        await problem.save();
+        if (allPassed) {
+            problem.submissions += 1;
+            problem.succesful += 1;
+            await problem.save();
+        }
 
-        res.json({ success: true, message: "All test cases passed!" });
+        res.json({ 
+            success: allPassed, 
+            message: allPassed ? "All test cases passed!" : "Some test cases failed.",
+            results
+        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+
+
 
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);

@@ -1,6 +1,8 @@
+// Editor.js (React component)
+
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, HStack, Select, Button, Textarea, Text, useColorModeValue } from '@chakra-ui/react';
-import { FaPlay, FaCheck, FaCode } from 'react-icons/fa';
+import { Box, VStack, HStack, Select, Button, Textarea, Text, useColorModeValue, List, ListItem, ListIcon } from '@chakra-ui/react';
+import { FaPlay, FaCheck, FaTimes } from 'react-icons/fa';
 import AceEditor from 'react-ace';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -8,27 +10,28 @@ import { useParams } from 'react-router-dom';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-java';
-import 'ace-builds/src-noconflict/theme-chrome';
+import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/mode-c_cpp'
 
 const sampleCode = {
-  javascript: `function solution(input) {
-    // Your code here
+  javascript: `function solution(a, b) {
+    return a + b;
 }`,
-  python: `def solution(input):
-    # Your code here
-    pass`,
+  python: `def solution(a, b):
+    return a + b`,
   java: `class Solution {
-    public static void main(String[] args) {
-        // Your code here
+    public static int solution(int a, int b) {
+        return a + b;
     }
 }`,
   cpp: `#include <iostream>
 using namespace std;
 
 int main() {
-    // Your code here
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << endl;
     return 0;
 }`
 };
@@ -39,6 +42,7 @@ const Editor = () => {
   const [customInput, setCustomInput] = useState('');
   const [output, setOutput] = useState('');
   const [problem, setProblem] = useState(null);
+  const [testResults, setTestResults] = useState([]);
   const { problemId } = useParams();
 
   useEffect(() => {
@@ -68,6 +72,7 @@ const Editor = () => {
         input: customInput
       });
       setOutput(response.data.output);
+      setTestResults([]);
     } catch (error) {
       setOutput(`Error: ${error.response?.data?.error || error.message}`);
     }
@@ -76,6 +81,7 @@ const Editor = () => {
   const handleSubmit = async () => {
     try {
       setOutput('Submitting code...');
+      setTestResults([]);
       const response = await axios.post(`http://localhost:3000/submit/${problemId}`, {
         language,
         code
@@ -83,8 +89,9 @@ const Editor = () => {
       if (response.data.success) {
         setOutput(`Submission successful: ${response.data.message}`);
       } else {
-        setOutput(`Submission failed: ${response.data.message}\n\nFailed Test Case:\nInput: ${response.data.failedTestCase.input}\nExpected Output: ${response.data.failedTestCase.expectedOutput}\nYour Output: ${response.data.failedTestCase.yourOutput}`);
+        setOutput(`Submission failed: ${response.data.message}`);
       }
+      setTestResults(response.data.results);
     } catch (error) {
       setOutput(`Error: ${error.response?.data?.error || error.message}`);
     }
@@ -116,7 +123,7 @@ const Editor = () => {
         <Box borderWidth={1} borderRadius="md" overflow="hidden">
           <AceEditor
             mode={language === 'cpp' ? 'c_cpp' : language}
-            theme={useColorModeValue('chrome', 'monokai')}
+            theme={useColorModeValue('github', 'monokai')}
             onChange={setCode}
             value={code}
             name="code-editor"
@@ -157,6 +164,20 @@ const Editor = () => {
             <Text fontFamily="monospace" whiteSpace="pre-wrap" color={textColor}>{output}</Text>
           </Box>
         </Box>
+
+        {testResults.length > 0 && (
+          <Box>
+            <Text fontWeight="bold" mb={2} color={textColor}>Test Results:</Text>
+            <List spacing={3}>
+              {testResults.map((result, index) => (
+                <ListItem key={index}>
+                  <ListIcon as={result.passed ? FaCheck : FaTimes} color={result.passed ? "green.500" : "red.500"} />
+                  Test case {result.testCase}: {result.passed ? "Passed" : "Failed"}
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        )}
       </VStack>
     </Box>
   );
