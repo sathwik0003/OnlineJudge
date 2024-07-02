@@ -1,32 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, VStack, HStack, Select, Button, Textarea, Text, useColorModeValue } from '@chakra-ui/react';
 import { FaPlay, FaCheck, FaCode } from 'react-icons/fa';
 import AceEditor from 'react-ace';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/mode-python';
 import 'ace-builds/src-noconflict/mode-java';
-import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-chrome';
 import 'ace-builds/src-noconflict/theme-monokai';
+import 'ace-builds/src-noconflict/mode-c_cpp'
 
 const sampleCode = {
-  javascript: `function twoSum(nums, target) {
+  javascript: `function solution(input) {
     // Your code here
 }`,
-  python: `def two_sum(nums, target):
+  python: `def solution(input):
     # Your code here
     pass`,
   java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
+    public static void main(String[] args) {
         // Your code here
     }
+}`,
+  cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    // Your code here
+    return 0;
 }`
 };
 
 const Editor = () => {
-  const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState(sampleCode.javascript);
-  const [customInput, setCustomInput] = useState('nums = [2, 7, 11, 15], target = 9');
+  const [language, setLanguage] = useState('cpp');
+  const [code, setCode] = useState(sampleCode.cpp);
+  const [customInput, setCustomInput] = useState('');
   const [output, setOutput] = useState('');
+  const [problem, setProblem] = useState(null);
+  const { problemId } = useParams();
+
+  useEffect(() => {
+    const fetchProblem = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/problems/${problemId}`);
+        setProblem(response.data);
+      } catch (error) {
+        console.error("Error fetching problem:", error);
+      }
+    };
+    fetchProblem();
+  }, [problemId]);
 
   const handleLanguageChange = (e) => {
     const newLanguage = e.target.value;
@@ -34,16 +59,35 @@ const Editor = () => {
     setCode(sampleCode[newLanguage]);
   };
 
-  const handleRun = () => {
-    setOutput('Running code...\nThis is a mock output. In a real application, you would execute the code and display the result here.');
+  const handleRun = async () => {
+    try {
+      setOutput('Running code...');
+      const response = await axios.post('http://localhost:3000/run', {
+        language,
+        code,
+        input: customInput
+      });
+      setOutput(response.data.output);
+    } catch (error) {
+      setOutput(`Error: ${error.response?.data?.error || error.message}`);
+    }
   };
 
-  const handleSubmit = () => {
-    setOutput('Submitting code...\nThis is a mock submission. In a real application, you would send the code to a server for evaluation.');
-  };
-
-  const handleCustomRun = () => {
-    setOutput(`Running with custom input: ${customInput}\nThis is a mock custom run. In a real application, you would execute the code with the custom input and display the result here.`);
+  const handleSubmit = async () => {
+    try {
+      setOutput('Submitting code...');
+      const response = await axios.post(`http://localhost:3000/submit/${problemId}`, {
+        language,
+        code
+      });
+      if (response.data.success) {
+        setOutput(`Submission successful: ${response.data.message}`);
+      } else {
+        setOutput(`Submission failed: ${response.data.message}\n\nFailed Test Case:\nInput: ${response.data.failedTestCase.input}\nExpected Output: ${response.data.failedTestCase.expectedOutput}\nYour Output: ${response.data.failedTestCase.yourOutput}`);
+      }
+    } catch (error) {
+      setOutput(`Error: ${error.response?.data?.error || error.message}`);
+    }
   };
 
   const bgColor = useColorModeValue('white', 'gray.800');
@@ -53,19 +97,26 @@ const Editor = () => {
 
   return (
     <Box p={6} borderWidth={1} borderRadius="lg" bg={bgColor} borderColor={borderColor} boxShadow="lg">
+      {problem && (
+        <VStack align="stretch" mb={6}>
+          <Text fontSize="2xl" fontWeight="bold">{problem.title}</Text>
+          <Text>{problem.problem_statement}</Text>
+        </VStack>
+      )}
       <VStack spacing={6} align="stretch">
         <HStack justifyContent="space-between">
           <Select value={language} onChange={handleLanguageChange} width="200px" color={textColor}>
             <option value="javascript">JavaScript</option>
             <option value="python">Python</option>
             <option value="java">Java</option>
+            <option value="cpp">C++</option>
           </Select>
         </HStack>
         
         <Box borderWidth={1} borderRadius="md" overflow="hidden">
           <AceEditor
-            mode={language}
-            theme={useColorModeValue('github', 'monokai')}
+            mode={language === 'cpp' ? 'c_cpp' : language}
+            theme={useColorModeValue('chrome', 'monokai')}
             onChange={setCode}
             value={code}
             name="code-editor"
@@ -98,7 +149,6 @@ const Editor = () => {
             color={textColor}
             mb={2}
           />
-          <Button leftIcon={<FaCode />} onClick={handleCustomRun}>Run Custom Input</Button>
         </Box>
         
         <Box>

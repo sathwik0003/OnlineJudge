@@ -9,11 +9,8 @@ const ProblemEditor = () => {
     <Box minHeight="100vh" display="flex" flexDirection="column">
       <Header />
       
-      <Container maxW="container.xl" flex="1" py={8}>
+      <Container maxW="container.xl" flex="1" py={1}>
         <VStack spacing={8} align="stretch">
-          <Heading as="h1" size="xl" textAlign="center">
-            Problem Editor
-          </Heading>
           
           <EditProblem />
         </VStack>

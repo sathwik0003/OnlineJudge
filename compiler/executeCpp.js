@@ -1,30 +1,70 @@
-const fs = require('fs')
-const path = require('path')
-const {exec} = require("child_process")
+// const { exec } = require("child_process");
+// const fs = require("fs");
+// const path = require("path");
 
-const outputPath = path.join(__dirname,"outputs")
+// const outputPath = path.join(__dirname, "outputs");
 
-if(!fs.existsSync(outputPath)){
-    fs.mkdirSync(outputPath,{recursive: true})
+// if (!fs.existsSync(outputPath)) {
+//   fs.mkdirSync(outputPath, { recursive: true });
+// }
+
+// const executeCpp = (filepath,inputPath) => {
+//   const jobId = path.basename(filepath).split(".")[0];
+//   const outPath = path.join(outputPath, `${jobId}.out`);
+  
+//   return new Promise((resolve, reject) => {
+//     exec(
+//       `g++ "${filepath}" -o "${outPath}" && cd "${outputPath}" && "./${jobId}.out" < "${inputPath}"`,
+//       (error, stdout, stderr) => {
+//         if (error) {
+//           reject({ error, stderr });
+//           return;
+//         }
+//         if (stderr) {
+//           reject(stderr);
+//           return;
+//         }
+//         resolve(stdout);
+//       }
+//     );
+//   });
+// };
+
+// module.exports = {
+//   executeCpp,
+// };
+
+
+const { exec } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+
+const outputPath = path.join(__dirname, "outputs");
+
+if (!fs.existsSync(outputPath)) {
+  fs.mkdirSync(outputPath, { recursive: true });
 }
 
-const executeCpp=(filePath)=>{
-    const jobId = path.basename(filePath).split(".")[0];
-    const outPath = path.join(outputPath, `${jobId}.out`);
+const executeCpp = (filepath, inputPath) => {
+  const jobId = path.basename(filepath).split(".")[0];
+  const outPath = path.join(outputPath, `${jobId}.out`);
+  
+  return new Promise((resolve, reject) => {
+    exec(
+      `g++ "${filepath}" -o "${outPath}" && cd "${outputPath}" && "./${jobId}.out" < "${inputPath}"`,
+      (error, stdout, stderr) => {
+        if (error) {
+          reject({ error, stderr });
+        }
+        if (stderr) {
+          reject(stderr);
+        }
+        resolve(stdout);
+      }
+    );
+  });
+};
 
-    return new Promise((resolve, reject)=>{
-        exec(`g++ "${filePath}" -o "${outPath}" && cd "${outputPath}" && "./${jobId}.out"`,(error,stdout, stderr)=>{
-            if(error){
-                reject(error);
-            }
-            if(stderr){
-                reject(stderr);
-            }
-            resolve(stdout);
-        })
-    })
-}
-
-module.exports={
-    executeCpp
-}
+module.exports = {
+  executeCpp,
+};
