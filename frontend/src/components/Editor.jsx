@@ -6,6 +6,7 @@ import { FaPlay, FaCheck, FaTimes } from 'react-icons/fa';
 import AceEditor from 'react-ace';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/mode-python';
@@ -43,12 +44,16 @@ const Editor = () => {
   const [output, setOutput] = useState('');
   const [problem, setProblem] = useState(null);
   const [testResults, setTestResults] = useState([]);
+  const [runtime, setRuntime] = useState(null);
+  const [status, setStatus] = useState(null);
   const { problemId } = useParams();
+
+  const authToken = Cookies.get('authToken'); 
 
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/problems/${problemId}`);
+        const response = await axios.get(`http://localhost:2999/problemdetails/${problemId}`);
         setProblem(response.data);
       } catch (error) {
         console.error("Error fetching problem:", error);
@@ -82,18 +87,26 @@ const Editor = () => {
     try {
       setOutput('Submitting code...');
       setTestResults([]);
-      const response = await axios.post(`http://localhost:3000/submit/${problemId}`, {
-        language,
-        code
+      const response = await fetch(`http://localhost:3000/submit/${problemId}`,  {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ language,code })
       });
-      if (response.data.success) {
-        setOutput(`Submission successful: ${response.data.message}`);
+      const data = await response.json()
+      if (data.success) {
+        setOutput(`Submission successful: ${data.message}`);
       } else {
-        setOutput(`Submission failed: ${response.data.message}`);
+        setOutput(`Submission failed: ${data.status} - ${data.message}`);
       }
-      setTestResults(response.data.results);
+      setTestResults(data.results);
+      setRuntime(data.runtime);
+      setStatus(data.status)
     } catch (error) {
-      setOutput(`Error: ${error.response?.data?.error || error.message}`);
+      setOutput(`Error: ${error.data?.error || error.message}`);
     }
   };
 
@@ -165,19 +178,24 @@ const Editor = () => {
           </Box>
         </Box>
 
-        {testResults.length > 0 && (
-          <Box>
-            <Text fontWeight="bold" mb={2} color={textColor}>Test Results:</Text>
-            <List spacing={3}>
-              {testResults.map((result, index) => (
-                <ListItem key={index}>
-                  <ListIcon as={result.passed ? FaCheck : FaTimes} color={result.passed ? "green.500" : "red.500"} />
-                  Test case {result.testCase}: {result.passed ? "Passed" : "Failed"}
-                </ListItem>
-              ))}
-            </List>
-          </Box>
-        )}
+        <Box height="150px" overflowY="auto">
+                    {testResults.length > 0 && (
+                      <Box>
+                        <Text fontWeight="bold" mb={2}>Test Results:</Text>
+                        <List spacing={3}>
+                          {testResults.map((result, index) => (
+                            <ListItem key={index}>
+                              <ListIcon as={result.passed ? FaCheck : FaTimes} color={result.passed ? "green.500" : "red.500"} />
+                              Test case {result.testCase}: {result.passed ? "Passed" : "Failed"}
+                              {result.error && <Text color="red.500">{result.error}</Text>}
+                            </ListItem>
+                          ))}
+                        </List>
+                        <Text mt={2}>Status: {status}</Text>
+                        <Text>Runtime: {runtime} ms</Text>
+                      </Box>
+                    )}
+                  </Box>
       </VStack>
     </Box>
   );

@@ -38,6 +38,7 @@ const AddProblem = () => {
     code: "",
     language: "",
   });
+  const [level, setLevel] = useState("");
 
   const [allTopics, setAllTopics] = useState([
     "Arrays",
@@ -63,6 +64,8 @@ const AddProblem = () => {
     "C++",
     "C",
   ];
+
+  const difficultyLevels = ["Easy", "Medium", "Hard"];
 
   const toast = useToast();
 
@@ -116,6 +119,7 @@ const AddProblem = () => {
       topics: selectedTopics,
       locked_test_cases: lockedTestCases,
       admin_solution: adminSolution,
+      level,
     };
 
     try {
@@ -159,6 +163,21 @@ const AddProblem = () => {
             <FormControl id="title" isRequired>
               <FormLabel>Title</FormLabel>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+            </FormControl>
+
+            <FormControl id="level" isRequired>
+              <FormLabel>Difficulty Level</FormLabel>
+              <Select
+                placeholder="Select difficulty level"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
+                {difficultyLevels.map((level) => (
+                  <option key={level} value={level.toLowerCase()}>
+                    {level}
+                  </option>
+                ))}
+              </Select>
             </FormControl>
 
             <FormControl id="problem_statement" isRequired>

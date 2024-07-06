@@ -115,7 +115,7 @@ const Header = () => {
     <>
       <Button as={RouterLink} to="/user/dashboard" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Dashboard</Button>
       <Button as={RouterLink} to="/refer" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Refer a Friend</Button>
-      <Button as={RouterLink} to="/assignments" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Assignments</Button>
+      <Button as={RouterLink} to="/user/problems" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Assignments</Button>
       <Button as={RouterLink} to="/contests" variant="ghost" _hover={{ bg: useColorModeValue('blue.50', 'blue.900') }} color={textColor}>Contests</Button>
     </>
   );
@@ -165,7 +165,7 @@ const Header = () => {
          </RouterLink>
         </Flex>
 
-        <Box flex={1} maxWidth="400px" mx={4}>
+        {/* <Box flex={1} maxWidth="400px" mx={4}>
           <Popover
             isOpen={isSearching}
             onClose={() => setIsSearching(false)}
@@ -204,7 +204,7 @@ const Header = () => {
               </PopoverBody>
             </PopoverContent>
           </Popover>
-        </Box>
+        </Box> */}
 
         <HStack spacing={4} display={{ base: 'none', md: 'flex' }}>
           <NavItems />

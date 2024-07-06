@@ -15,8 +15,10 @@ import Problem from './components/Problem';
 import Editor from './components/Editor';
 import EditProblem from './components/EditProblem';
 import ProblemEditor from './pages/ProblemEditor';
-import AllProblems from './components/AllProblems';
 import AllProblemsPage from './pages/AllProbelmsPage';
+import AllProblems from './components/AllProblems';
+import AdminAll from './components/admin/AdminAll';
+import AdminUpdate from './components/admin/AdminUpdate'
 
 function App() {
 
@@ -38,6 +40,8 @@ function App() {
         {/* <Route path="/user/problemeditor/:problemId" element={<EditProblem/>} /> */}
         <Route path="/user/problemeditor/:problemId" element={<ProblemEditor/>} />
         <Route path="/user/problems" element={<AllProblemsPage/>} />
+        <Route path="/admin/all" element={<AdminAll/>} />
+        <Route path="/admin/update/:problemId" element={<AdminUpdate/>} />
     </Routes>
     </>
   )

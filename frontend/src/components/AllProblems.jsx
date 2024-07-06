@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   VStack,
@@ -14,9 +15,11 @@ import {
   Button,
   InputGroup,
   InputLeftElement,
+  Spinner,
 } from '@chakra-ui/react';
 import { CheckCircleIcon, WarningIcon, SearchIcon } from '@chakra-ui/icons';
 import { FaCode, FaTag, FaChartBar, FaFilter } from 'react-icons/fa';
+import Cookies from 'js-cookie';
 
 const getDifficultyColor = (difficulty) => {
   if (!difficulty) return 'gray';
@@ -28,9 +31,10 @@ const getDifficultyColor = (difficulty) => {
   }
 };
 
-const ProblemCard = ({ title, submissions, isDone, difficulty, topic }) => {
+const ProblemCard = ({ _id, title, submissions, succesful, level, topics, onClick }) => {
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const isDone = succesful > 0;
 
   return (
     <Box
@@ -41,7 +45,8 @@ const ProblemCard = ({ title, submissions, isDone, difficulty, topic }) => {
       borderColor={borderColor}
       boxShadow="md"
       transition="all 0.3s"
-      _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
+      _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg', cursor: 'pointer' }}
+      onClick={() => onClick(_id)}
     >
       <VStack align="stretch" spacing={3}>
         <HStack justify="space-between">
@@ -61,13 +66,13 @@ const ProblemCard = ({ title, submissions, isDone, difficulty, topic }) => {
             <Icon as={FaChartBar} mr={1} />
             Submissions: {submissions}
           </Text>
-          <Badge colorScheme={getDifficultyColor(difficulty)} borderRadius="full" px={2}>
-            {difficulty || 'Unknown'}
+          <Badge colorScheme={getDifficultyColor(level)} borderRadius="full" px={2}>
+            {level || 'Unknown'}
           </Badge>
         </HStack>
         <Text fontSize="sm" color="gray.500">
           <Icon as={FaTag} mr={1} />
-          Topic: {topic || 'General'}
+          Topics: {topics.join(', ') || 'General'}
         </Text>
       </VStack>
     </Box>
@@ -75,42 +80,68 @@ const ProblemCard = ({ title, submissions, isDone, difficulty, topic }) => {
 };
 
 const AllProblems = () => {
-  const sampleProblems = [
-    { id: 1, title: 'Two Sum', submissions: 1000000, isDone: true, difficulty: 'Easy', topic: 'Arrays' },
-    { id: 2, title: 'Add Two Numbers', submissions: 750000, isDone: false, difficulty: 'Medium', topic: 'Linked Lists' },
-    { id: 3, title: 'Longest Substring Without Repeating Characters', submissions: 800000, isDone: true, difficulty: 'Medium', topic: 'Strings' },
-    { id: 4, title: 'Median of Two Sorted Arrays', submissions: 500000, isDone: false, difficulty: 'Hard', topic: 'Arrays' },
-    { id: 5, title: 'Longest Palindromic Substring', submissions: 600000, isDone: true, difficulty: 'Medium', topic: 'Strings' },
-    { id: 6, title: 'ZigZag Conversion', submissions: 400000, isDone: false, difficulty: 'Medium', topic: 'Strings' },
-    { id: 7, title: 'Reverse Integer', submissions: 950000, isDone: true, difficulty: 'Easy', topic: 'Math' },
-    { id: 8, title: 'String to Integer (atoi)', submissions: 700000, isDone: false, difficulty: 'Medium', topic: 'Strings' },
-    { id: 9, title: 'Palindrome Number', submissions: 850000, isDone: true, difficulty: 'Easy', topic: 'Math' },
-  ];
-
-  const [problems, setProblems] = useState(sampleProblems);
+  const [problems, setProblems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     topic: '',
     difficulty: '',
     search: '',
   });
+  const navigate = useNavigate();
+  const authToken = Cookies.get('authToken'); 
+
 
   useEffect(() => {
-    const filteredProblems = sampleProblems.filter((problem) => {
-      const matchesTopic = !filters.topic || problem.topic === filters.topic;
-      const matchesDifficulty = !filters.difficulty || problem.difficulty === filters.difficulty;
-      const matchesSearch = !filters.search || problem.title.toLowerCase().includes(filters.search.toLowerCase());
-      return matchesTopic && matchesDifficulty && matchesSearch;
-    });
-    setProblems(filteredProblems);
-  }, [filters]);
+    const fetchProblems = async () => {
+      try {
+        const response = await fetch('http://localhost:2999/api/problems');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setProblems(data);
+        } else {
+          throw new Error('Data received is not an array');
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching problems:', error);
+        setError('Error fetching problems. Please try again later.');
+        setIsLoading(false);
+      }
+    };
+
+    fetchProblems();
+  }, []);
+
+  const filteredProblems = problems.filter((problem) => {
+    const matchesTopic = !filters.topic || problem.topics.includes(filters.topic);
+    const matchesDifficulty = !filters.difficulty || problem.level === filters.difficulty;
+    const matchesSearch = !filters.search || problem.title.toLowerCase().includes(filters.search.toLowerCase());
+    return matchesTopic && matchesDifficulty && matchesSearch;
+  });
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const topics = [...new Set(sampleProblems.map((p) => p.topic))].filter(Boolean);
-  const difficulties = [...new Set(sampleProblems.map((p) => p.difficulty))].filter(Boolean);
+  const handleProblemClick = (problemId) => {
+    navigate(`/user/problemeditor/${problemId}`);
+  };
+
+  const topics = [...new Set(problems.flatMap((p) => p.topics))].filter(Boolean);
+  const difficulties = [...new Set(problems.map((p) => p.level))].filter(Boolean);
+
+  if (isLoading) {
+    return <Spinner size="xl" />;
+  }
+
+  if (error) {
+    return <Text color="red.500">{error}</Text>;
+  }
 
   return (
     <Box>
@@ -157,8 +188,8 @@ const AllProblems = () => {
         </Button>
       </Flex>
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-        {problems.map((problem) => (
-          <ProblemCard key={problem.id} {...problem} />
+        {filteredProblems.map((problem) => (
+          <ProblemCard key={problem._id} {...problem} onClick={handleProblemClick} />
         ))}
       </SimpleGrid>
     </Box>

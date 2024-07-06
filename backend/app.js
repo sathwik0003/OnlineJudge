@@ -385,6 +385,56 @@ app.post('/addproblem', async (req, res) => {
     }
   });
 
+  app.get('/api/problems', async (req, res) => {
+    try {
+      const problems = await Problem.find({}, 'title submissions succesful level topics');
+      res.json(problems);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching problems', error: error.message });
+    }
+  });
+
+  app.delete('/problem/:pId', async (req, res) => {
+    try {
+      const problemId = req.params.pId;
+      console.log(problemId);
+      const problem = await Problem.findById(problemId);
+      if (!problem) return res.status(404).send('Problem not found');
+  
+      await problem.deleteOne();
+      res.status(200).send('Problem deleted');
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
+  app.put('/problem/update/:id', async (req, res) => {
+    const { title, problem_statement, input_description, output_description, sample_cases, constraints, level, hints, topics, locked_test_cases, admin_solution } = req.body;
+    try {
+      let problem = await Problem.findById(req.params.id);
+      if (!problem) return res.status(404).json({ message: 'Problem not found' });
+  
+      problem.title = title;
+      problem.problem_statement = problem_statement;
+      problem.input_description = input_description;
+      problem.output_description = output_description;
+      problem.sample_cases = sample_cases;
+      problem.constraints = constraints;
+      problem.level = level;
+      problem.hints = hints;
+      problem.topics = topics;
+      problem.locked_test_cases = locked_test_cases;
+      problem.admin_solution = admin_solution;
+      problem.updated_at = Date.now();
+  
+      await problem.save();
+      res.status(200).json(problem);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  });
+ 
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
