@@ -1,5 +1,6 @@
 const express = require('express');
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Types;
 const {generateFile} = require("./generateFile.js")
 const {executeCpp} = require("./executeCpp.js")
 const {generateInputFile} = require('./generateInputFile.js')
@@ -40,21 +41,21 @@ app.get("/",(req,res)=>{
 })
 
 function authenticateToken(req, res, next) {
-    const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
+  const token = req.cookies.token || req.headers['authorization']?.split(' ')[1];
+  
+  if (!token) {
+    console.log("Access denied. No token provided.");
+    return res.status(401).send("Access denied. No token provided.");
+  }
 
-    if (!token) {
-        console.log("Access denied. No token provided.");
-        return res.status(401).send("Access denied. No token provided.");
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        console.log("Invalid token", error);
-        res.status(400).send("Invalid token");
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.log("Invalid token", error);
+    res.status(400).send("Invalid token");
+  }
 }
 
 app.post("/run",async (req,res)=>{
@@ -96,7 +97,6 @@ app.post('/submit/:problemId', authenticateToken, async (req, res) => {
     const { problemId } = req.params;
     const { language = "cpp", code } = req.body;
     const userId = req.user.userId;
-    console.log(userId)
     
     try {
       const problem = await Problem.findById(problemId);
@@ -116,7 +116,6 @@ app.post('/submit/:problemId', authenticateToken, async (req, res) => {
         const inputPath = generateInputFile(testCase.input);
         const startTime = process.hrtime();
         const output = await executeCpp(filePath, inputPath, timeLimit);
-        console.log(output);
         const endTime = process.hrtime(startTime);
         const testRuntime = endTime[0] * 1000 + endTime[1] / 1000000; // Convert to milliseconds
         totalRuntime += testRuntime;
@@ -241,6 +240,182 @@ app.get('/user/submissions', authenticateToken, async (req, res) => {
   });
 
 
+
+
+  app.get('/user/statistics', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user.userId;
+  
+      const totalProblems = await Problem.countDocuments();
+  
+      const solvedProblemsSet = new Set(
+        await UserProblem.distinct('problem', { user: userId, status: 'Accepted' })
+      );
+      const solvedProblems = solvedProblemsSet.size;
+
+  
+      const submissions = await UserProblem.find({ user: userId })
+        .sort('-submittedAt')
+        .limit(5)
+        .populate('problem', 'title');
+  
+      const userSubmissions = await UserProblem.find({ user: userId, status: 'Accepted' })
+        .sort('submittedAt');
+
+  
+      let currentStreak = 0;
+      let maxStreak = 0;
+      let streakData = [];
+      let lastDate = null;
+  
+      userSubmissions.forEach(submission => {
+        const currentDate = submission.submittedAt.toISOString().split('T')[0];
+        if (lastDate) {
+          const lastDateObj = new Date(lastDate);
+          const currentDateObj = new Date(currentDate);
+          const diffDays = (currentDateObj - lastDateObj) / (1000 * 60 * 60 * 24);
+  
+          if (diffDays === 1) {
+            currentStreak++;
+          } else if (diffDays > 1) {
+            maxStreak = Math.max(maxStreak, currentStreak);
+            currentStreak = 1;
+          }
+        } else {
+          currentStreak = 1;
+        }
+        lastDate = currentDate;
+        streakData.push({ date: currentDate, streak: currentStreak });
+      });
+  
+      maxStreak = Math.max(maxStreak, currentStreak);
+  
+  
+      res.json({
+        success: true,
+        totalProblems,
+        solvedProblems,
+        submissions,
+        currentStreak,
+        maxStreak,
+        streakData
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+  
+  
+  
+  app.get('/user/monthly-stats', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user.userId;
+      const year = new Date().getFullYear();
+      const startOfYear = new Date(year, 0, 1);
+      const endOfYear = new Date(year + 1, 0, 1);
+  
+      const monthlyData = await UserProblem.aggregate([
+        {
+          $match: {
+            user: new mongoose.Types.ObjectId(userId),
+            status: 'Accepted',
+            submittedAt: { $gte: startOfYear, $lt: endOfYear }
+          }
+        },
+        {
+          $group: {
+            _id: {
+              month: { $month: '$submittedAt' },
+              problem: '$problem'
+            },
+            firstSolved: { $min: '$submittedAt' }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id.month',
+            uniqueProblems: { $sum: 1 },
+            problems: {
+              $push: {
+                problemId: '$_id.problem',
+                solvedAt: '$firstSolved'
+              }
+            }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]);
+  
+      const formattedData = monthlyData.map(item => ({
+        month: new Date(year, item._id - 1, 1).toLocaleString('default', { month: 'long' }),
+        uniqueProblemCount: item.uniqueProblems,
+        problems: item.problems
+      }));
+  
+      res.json({ success: true, monthlyData: formattedData });
+    } catch (err) {
+      console.error('Error in monthly stats:', err);
+      res.status(500).json({ success: false, error: 'Internal server error' });
+    }
+  });
+
+
+ 
+
+app.get('/user/topic-stats', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+
+    const topicStats = await Problem.aggregate([
+      {
+        $lookup: {
+          from: 'userproblems',
+          let: { problemId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$problem', '$$problemId'] },
+                    { $eq: ['$user', new ObjectId(userId)] },
+                    { $eq: ['$status', 'Accepted'] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: 'solved'
+        }
+      },
+      {
+        $unwind: '$topics'
+      },
+      {
+        $group: {
+          _id: '$topics',
+          total: { $sum: 1 },
+          solved: { $sum: { $cond: [{ $gt: [{ $size: '$solved' }, 0] }, 1, 0] } }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+    
+    res.json({ success: true, topicStats });
+  } catch (err) {
+    console.error('Error in topic stats:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
+
+
+

@@ -313,6 +313,7 @@ app.post("/changepassword", authenticateToken, async (req, res) => {
 
 app.get("/userdetails", authenticateToken, async (req, res) => {
     const userId = req.user.userId;
+    console.log(userId)
 
     try {
         const user = await User.findById(userId).select('-password');
@@ -342,6 +343,7 @@ app.get("/problemdetails/:problemId", async (req, res) => {
         res.status(500).json({ message: "An error occurred", error: error.message });
     }
 });
+
 
 
 app.post('/addproblem', async (req, res) => {
