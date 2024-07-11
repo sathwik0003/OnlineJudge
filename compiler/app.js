@@ -305,6 +305,23 @@ app.get('/user/submissions', authenticateToken, async (req, res) => {
       res.status(500).json({ success: false, error: err.message });
     }
   });
+
+  app.get('/user/all-submissions', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user.userId;
+      const allSubmissions = await UserProblem.find({ user: userId })
+        .sort('-submittedAt')
+        .populate('problem', 'title');
+  
+      res.json({
+        success: true,
+        submissions: allSubmissions
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
   
   
   

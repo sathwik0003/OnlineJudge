@@ -1,117 +1,158 @@
-import React, { useState } from 'react';
-import { Box, VStack, HStack, Select, Button, Textarea, Text, useColorModeValue } from '@chakra-ui/react';
-import { FaPlay, FaCheck, FaCode } from 'react-icons/fa';
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/mode-javascript';
-import 'ace-builds/src-noconflict/mode-python';
-import 'ace-builds/src-noconflict/mode-java';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-monokai';
-import 'ace-builds/src-noconflict/mode-c_cpp'
+// src/pages/Home.js
+import React from 'react';
+import {
+  Box,
+  Container,
+  Heading,
+  SimpleGrid,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  Link,
+  VStack,
+  Image,
+} from '@chakra-ui/react';
+import Marquee from 'react-fast-marquee';
+import HomeCard from '../components/HomeCard'; // instead add corousel
+import G_logo from '../assets/google_logo.jpeg'
+import Micro_logo from '../assets/microsoft_logo.jpeg'
+import Meta_logo from '../assets/meta_logo.jpeg'
+import Amazon_logo from '../assets/amazon_logo.jpeg'
+import Netflix_logo from '../assets/netflix_logo.jpeg'
+import flipkart_logo from '../assets/flipkart_logo.jpeg'
+import walmart_logo from '../assets/walmart_logo.jpeg'
+import uber_logo from '../assets/uber_logo.jpeg'
+import Homeback1 from '../assets/home_back1.jpeg'
+import Homeback2 from '../assets/home_back2.jpeg'
+import Homeback3 from '../assets/home_back3.jpeg'
+import Homeback4 from '../assets/home_back4.jpeg'
 
-const sampleCode = {
-  javascript: `function twoSum(nums, target) {
-    // Your code here
-}`,
-  python: `def two_sum(nums, target):
-    # Your code here
-    pass`,
-  java: `class Solution {
-    public int[] twoSum(int[] nums, int target) {
-        // Your code here
-    }
-}`,
-cpp:``
-};
 
-const Editor = () => {
-  const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState(sampleCode.javascript);
-  const [customInput, setCustomInput] = useState('');
-  const [output, setOutput] = useState('');
 
-  const handleLanguageChange = (e) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-    setCode(sampleCode[newLanguage]);
-  };
+const companyLogos = [
+  { name: 'Company 1', logo: G_logo, link: 'https://company1.com' },
+  { name: 'Company 2', logo: Micro_logo, link: 'https://company2.com' },
+  { name: 'Company 3', logo: Meta_logo, link: 'https://company3.com' },
+  { name: 'Company 4', logo: Amazon_logo, link: 'https://company4.com' },
+  { name: 'Company 5', logo: Netflix_logo, link: 'https://company5.com' },
+  { name: 'Company 6', logo: flipkart_logo, link: 'https://company6.com' },
+  { name: 'Company 7', logo: walmart_logo, link: 'https://company7.com' },
+  { name: 'Company 8', logo: uber_logo, link: 'https://company8.com' },
+];
 
-  const handleRun = () => {
-    setOutput('Running code...\nThis is a mock output. In a real application, you would execute the code and display the result here.');
-  };
+const popularCourses = [
+  { title: 'Data Structures', image: Homeback1, link: '/course/data-structures' },
+  { title: 'Algorithms', image:Homeback2, link: '/course/algorithms' },
+  { title: 'Web Development', image:Homeback3 , link: '/course/web-dev' },
+  { title: 'Machine Learning', image:Homeback4 , link: '/course/machine-learning' },
+];
 
-  const handleSubmit = () => {
-    setOutput('Submitting code...\nThis is a mock submission. In a real application, you would send the code to a server for evaluation.');
-  };
+const upcomingContests = [
+  { name: 'Weekly Challenge', date: '2024-06-25', time: '14:00 UTC', registrationLink: '/register/weekly' },
+  { name: 'Monthly Hackathon', date: '2024-07-01', time: '09:00 UTC', registrationLink: '/register/monthly' },
+  { name: 'Coding Marathon', date: '2024-07-15', time: '10:00 UTC', registrationLink: '/register/marathon' },
+  // Add more upcoming contests
+];
 
-  const handleCustomRun = () => {
-    setOutput(`Running with custom input: ${customInput}\nThis is a mock custom run. In a real application, you would execute the code with the custom input and display the result here.`);
-  };
+const pastContests = [
+  { name: 'Spring Coding Sprint', date: '2024-05-15', time: '10:00 UTC', resultsLink: '/results/spring-sprint' },
+  { name: 'AI Challenge', date: '2024-04-20', time: '13:00 UTC', resultsLink: '/results/ai-challenge' },
+  { name: 'Database Design Contest', date: '2024-03-10', time: '11:00 UTC', resultsLink: '/results/db-design' },
+  // Add more past contests
+];
 
-  const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
-  const textColor = useColorModeValue('gray.800', 'white');
-  const inputBgColor = useColorModeValue('gray.50', 'gray.700');
-
+const HomePage = () => {
   return (
-    <Box p={6} borderWidth={1} borderRadius="lg" bg={bgColor} borderColor={borderColor} boxShadow="lg">
-      <VStack spacing={6} align="stretch">
-        <HStack justifyContent="space-between">
-          <Select value={language} onChange={handleLanguageChange} width="200px" color={textColor}>
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-            <option value="java">Java</option>
-          </Select>
-        </HStack>
-        
-        <Box borderWidth={1} borderRadius="md" overflow="hidden">
-          <AceEditor
-            mode={language}
-            theme={useColorModeValue('github', 'monokai')}
-            onChange={setCode}
-            value={code}
-            name="code-editor"
-            editorProps={{ $blockScrolling: true }}
-            setOptions={{
-              enableBasicAutocompletion: true,
-              enableLiveAutocompletion: true,
-              enableSnippets: true,
-              showLineNumbers: true,
-              tabSize: 2,
-            }}
-            width="100%"
-            height="400px"
-            fontSize={16}
-          />
-        </Box>
-        
-        <HStack>
-          <Button leftIcon={<FaPlay />} colorScheme="green" onClick={handleRun}>Run</Button>
-          <Button leftIcon={<FaCheck />} colorScheme="blue" onClick={handleSubmit}>Submit</Button>
-        </HStack>
-        
+    <Container maxW="container.xl" py={8}>
+      <VStack spacing={8} align="stretch">
+
+      
+
+        <Heading as="h2" size="xl">
+          Popular Courses
+        </Heading>
+        <SimpleGrid columns={[1, 2, 3, 4]} spacing={6}>
+          {popularCourses.map((course, index) => (
+            <HomeCard key={index} {...course} />
+          ))}
+        </SimpleGrid>
+
         <Box>
-          <Text fontWeight="bold" mb={2} color={textColor}>Custom Input:</Text>
-          <Textarea 
-            value={customInput} 
-            onChange={(e) => setCustomInput(e.target.value)} 
-            placeholder="Enter custom input here"
-            bg={inputBgColor}
-            color={textColor}
-            mb={2}
-          />
-          <Button leftIcon={<FaCode />} onClick={handleCustomRun}>Run Custom Input</Button>
+          <Marquee speed={50} gradient={false}>
+            {companyLogos.map((company, index) => (
+              <Link key={index} href={company.link} isExternal mx={4}>
+                <Image src={company.logo} alt={company.name} h="50px" objectFit="contain" />
+              </Link>
+            ))}
+          </Marquee>
         </Box>
+
+        {/*add topics title with search box with number of questions in each topic and serial number*/}
+
         
-        <Box>
-          <Text fontWeight="bold" mb={2} color={textColor}>Output:</Text>
-          <Box p={4} borderWidth={1} borderRadius="md" bg={inputBgColor}>
-            <Text fontFamily="monospace" whiteSpace="pre-wrap" color={textColor}>{output}</Text>
-          </Box>
-        </Box>
+
+        <Heading as="h2" size="xl">
+          Upcoming Contests
+        </Heading>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Contest Name</Th>
+              <Th>Date</Th>
+              <Th>Time</Th>
+              <Th>Registration</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {upcomingContests.map((contest, index) => (
+              <Tr key={index}>
+                <Td>{contest.name}</Td>
+                <Td>{contest.date}</Td>
+                <Td>{contest.time}</Td>
+                <Td>
+                  <Button as={Link} href={contest.registrationLink} colorScheme="blue" size="sm">
+                    Register
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+
+        <Heading as="h2" size="xl">
+          Past Contests
+        </Heading>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Contest Name</Th>
+              <Th>Date</Th>
+              <Th>Time</Th>
+              <Th>Results</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {pastContests.map((contest, index) => (
+              <Tr key={index}>
+                <Td>{contest.name}</Td>
+                <Td>{contest.date}</Td>
+                <Td>{contest.time}</Td>
+                <Td>
+                  <Button as={Link} href={contest.resultsLink} colorScheme="green" size="sm">
+                    View Results
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
       </VStack>
-    </Box>
+    </Container>
   );
 };
 
-export default Editor;
+export default HomePage;

@@ -19,6 +19,8 @@ import AllProblemsPage from './pages/AllProbelmsPage';
 import AllProblems from './components/AllProblems';
 import AdminAll from './components/admin/AdminAll';
 import AdminUpdate from './components/admin/AdminUpdate'
+import Referral from './components/Referral';
+import ReferralPage from './pages/ReferralPage';
 
 function App() {
 
@@ -42,6 +44,7 @@ function App() {
         <Route path="/user/problems" element={<AllProblemsPage/>} />
         <Route path="/admin/all" element={<AdminAll/>} />
         <Route path="/admin/update/:problemId" element={<AdminUpdate/>} />
+        <Route path="/user/referral" element={<ReferralPage/>} />
     </Routes>
     </>
   )

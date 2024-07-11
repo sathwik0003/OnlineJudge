@@ -435,6 +435,22 @@ app.post('/addproblem', async (req, res) => {
       res.status(500).json({ message: 'Server error', error: error.message });
     }
   });
+
+  app.get('/user/referral', authenticateToken, async (req, res) => {
+    try {
+      const referral = await Referral.findOne({ userId: req.user.userId }).populate('referralBy', 'username');
+      if (!referral) {
+        return res.status(404).json({ message: 'Referral data not found' });
+      }
+      res.json({
+        referralCode: referral.referralCode,
+        referralCount: referral.referralCount,
+        referredBy: referral.referralBy ? referral.referralBy.username : null
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
  
 
 app.listen(port, () => {

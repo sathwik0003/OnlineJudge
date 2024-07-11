@@ -83,7 +83,7 @@ const Login = () => {
       });
 
       const result = await response.json();
-      Cookies.set('authToken', result.token, { expires: 0.24 });
+      Cookies.set('authToken', result.token, { expires: 1 });
       navigate('/home');
     } catch (error) {
       console.error('Error during login:', error.message);

@@ -56,6 +56,8 @@ const Dashboard = () => {
   const [monthlyData, setMonthlyData] = useState([]);
   const [topicWiseSolutions, setTopicWiseSolutions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [allSubmissions, setAllSubmissions] = useState([]);
+
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const authToken = Cookies.get('authToken');
@@ -179,6 +181,24 @@ const Dashboard = () => {
     );
   }
 
+  const handleViewAllSubmissions = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/user/all-submissions', {
+        headers: { 'Authorization': `Bearer ${authToken}` }
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAllSubmissions(data.submissions);
+        onSubmissionsOpen();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching all submissions:', error);
+      toast.error('Failed to fetch all submissions');
+    }
+  };
+
   return (
     <Box p={4} bg={bgColor} minHeight="100vh">
       <ToastContainer />
@@ -237,14 +257,14 @@ const Dashboard = () => {
               </Table>
             </Box>
             <Button
-              rightIcon={<FaChevronRight />}
-              colorScheme="blue"
-              variant="link"
-              mt={4}
-              onClick={onSubmissionsOpen}
-            >
-              View All Submissions
-            </Button>
+      rightIcon={<FaChevronRight />}
+      colorScheme="blue"
+      variant="link"
+      mt={4}
+      onClick={handleViewAllSubmissions}
+    >
+      View All Submissions
+    </Button>
           </Box>
 
           <Box bg={bgColor} p={6} borderRadius="lg" boxShadow="md">
@@ -312,7 +332,7 @@ const Dashboard = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="problems" fill="#8884d8" name="Unique Problems Solved" />
+                <Bar dataKey="problems" fill="#8884d8" name="Problems Solved" />
               </BarChart>
             </ResponsiveContainer>
           </Box>
@@ -348,55 +368,57 @@ const Dashboard = () => {
       </SimpleGrid>
 
       <Modal isOpen={isSettingsOpen} onClose={onSettingsClose} size="md">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {activeForm === 'profile' && 'Update Profile'}
-            {activeForm === 'password' && 'Change Password'}
-            {activeForm === 'delete' && 'Delete Account'}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {activeForm === 'profile' && <UpdateProfileForm onSubmit={(data) => handleFormSubmit('profile', data)} initialData={user} />}
-            {activeForm === 'password' && <ChangePasswordForm onSubmit={(data) => handleFormSubmit('password', data)} />}
-            {activeForm === 'delete' && <DeleteAccountForm onSubmit={() => handleFormSubmit('delete')} />}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+  <ModalOverlay />
+  <ModalContent>
+    <ModalHeader>
+      {activeForm === 'profile' && 'Update Profile'}
+      {activeForm === 'password' && 'Change Password'}
+      {activeForm === 'delete' && 'Delete Account'}
+    </ModalHeader>
+    <ModalCloseButton />
+    <ModalBody>
+      {activeForm === 'profile' && <UpdateProfileForm onSubmit={(data) => handleFormSubmit('profile', data)} initialData={user} />}
+      {activeForm === 'password' && <ChangePasswordForm onSubmit={(data) => handleFormSubmit('password', data)} />}
+      {activeForm === 'delete' && <DeleteAccountForm onSubmit={() => handleFormSubmit('delete')} />}
+    </ModalBody>
+  </ModalContent>
+</Modal>
 
-      <Modal isOpen={isSubmissionsOpen} onClose={onSubmissionsClose} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>All Submissions</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Table variant="simple">
-              <Thead>
-                <Tr><Th>Problem</Th>
-                  <Th>Date</Th>
-                  <Th>Status</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {submissions.map((sub) => (
-                  <Tr key={sub._id}>
-                    <Td>{sub.problem.title}</Td>
-                    <Td>{new Date(sub.submittedAt).toLocaleDateString()}</Td>
-                    <Td>
-                      <Text
-                        color={sub.status === 'Accepted' ? 'green.500' : 'red.500'}
-                        fontWeight="bold"
-                      >
-                        {sub.status}
-                      </Text>
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+<Modal isOpen={isSubmissionsOpen} onClose={onSubmissionsClose} size="xl">
+  <ModalOverlay />
+  <ModalContent>
+    <ModalHeader>All Submissions</ModalHeader>
+    <ModalCloseButton />
+    <ModalBody>
+      <Table variant="simple">
+        <Thead>
+          <Tr>
+            <Th>Problem</Th>
+            <Th>Date</Th>
+            <Th>Status</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {allSubmissions.map((sub) => (
+            <Tr key={sub._id}>
+              <Td>{sub.problem.title}</Td>
+              <Td>{new Date(sub.submittedAt).toLocaleDateString()}</Td>
+              <Td>
+                <Text
+                  color={sub.status === 'Accepted' ? 'green.500' : 'red.500'}
+                  fontWeight="bold"
+                >
+                  {sub.status}
+                </Text>
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </ModalBody>
+  </ModalContent>
+</Modal>
+    
     </Box>
   );
 };
