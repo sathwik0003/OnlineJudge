@@ -24,7 +24,7 @@ const AdminUpdate = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`http://localhost:2999/problemdetails/${problemId}`)
+    fetch(`https://onlinejudge-2nas.onrender.com/problemdetails/${problemId}`)
       .then((res) => res.json())
       .then((data) => {
         setProblem(data);
@@ -44,7 +44,7 @@ const AdminUpdate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch(`http://localhost:2999/problem/update/${problemId}`, {
+    fetch(`https://onlinejudge-2nas.onrender.com/problem/update/${problemId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

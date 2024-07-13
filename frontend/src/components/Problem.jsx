@@ -26,7 +26,7 @@ const ProblemComponent = () => {
   useEffect(() => {
     async function getProblemDetails() {
       try {
-        const response = await fetch(`http://localhost:2999/problemdetails/${problemId}`, {
+        const response = await fetch(`https://onlinejudge-2nas.onrender.com/problemdetails/${problemId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -53,7 +53,7 @@ const Editor = () => {
   useEffect(() => {
     const fetchProblem = async () => {
       try {
-        const response = await axios.get(`http://localhost:2999/problemdetails/${problemId}`);
+        const response = await axios.get(`https://onlinejudge-2nas.onrender.com/problemdetails/${problemId}`);
         setProblem(response.data);
       } catch (error) {
         console.error("Error fetching problem:", error);
@@ -71,7 +71,7 @@ const Editor = () => {
   const handleRun = async () => {
     try {
       setOutput('Running code...');
-      const response = await axios.post('http://localhost:3000/run', {
+      const response = await axios.post('http://13.126.186.18:3000/run', {
         language,
         code,
         input: customInput
@@ -87,7 +87,7 @@ const Editor = () => {
     try {
       setOutput('Submitting code...');
       setTestResults([]);
-      const response = await fetch(`http://localhost:3000/submit/${problemId}`,  {
+      const response = await fetch(`http://13.126.186.18:3000/submit/${problemId}`,  {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

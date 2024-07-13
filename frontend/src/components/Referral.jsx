@@ -25,7 +25,7 @@ const Referral = () => {
     try {
       setIsLoading(true);
       const token = Cookies.get('authToken');
-      const response = await fetch('http://localhost:2999/user/referral', {
+      const response = await fetch('https://onlinejudge-2nas.onrender.com/user/referral', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -59,7 +59,7 @@ const Login = () => {
 
   const loginUser = async () => {
     try {
-      const response = await fetch(`http://localhost:2999/login`, {
+      const response = await fetch(`https://onlinejudge-2nas.onrender.com/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

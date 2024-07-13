@@ -95,7 +95,7 @@ const AllProblems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const response = await fetch('http://localhost:2999/api/problems');
+        const response = await fetch('https://onlinejudge-2nas.onrender.com/api/problems');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

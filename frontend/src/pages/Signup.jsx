@@ -119,7 +119,7 @@ const Signup = () => {
 
   const checkUsernameExists = async (username) => {
     // Simulate an API call to check if the username exists
-    const response = await fetch(`http://localhost:2999/check-username`, {
+    const response = await fetch(`https://onlinejudge-2nas.onrender.com/check-username`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ const Signup = () => {
 
   const checkEmailExists = async (email) => {
     // Simulate an API call to check if the email exists
-    const response = await fetch(`http://localhost:2999/check-email`, {
+    const response = await fetch(`https://onlinejudge-2nas.onrender.com/check-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -147,7 +147,7 @@ const Signup = () => {
 
   const registerUser = async () => {
     try {
-      const response = await fetch(`http://localhost:2999/register/${referralid}`, {
+      const response = await fetch(`https://onlinejudge-2nas.onrender.com/register/${referralid}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

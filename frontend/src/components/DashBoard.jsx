@@ -67,10 +67,10 @@ const Dashboard = () => {
       setIsLoading(true);
       try {
         const [userDetails, stats, monthlyStats, topicStats] = await Promise.all([
-          fetch('http://localhost:2999/userdetails', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
-          fetch('http://localhost:3000/user/statistics', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
-          fetch('http://localhost:3000/user/monthly-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
-          fetch('http://localhost:3000/user/topic-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json())
+          fetch('https://onlinejudge-2nas.onrender.com/userdetails', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
+          fetch('http://13.126.186.18:3000/user/statistics', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
+          fetch('http://13.126.186.18:3000/user/monthly-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
+          fetch('http://13.126.186.18:3000/user/topic-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json())
         ]);
 
         setUser(userDetails);
@@ -114,7 +114,7 @@ const Dashboard = () => {
       let response;
       switch (formType) {
         case 'profile':
-          response = await fetch('http://localhost:2999/user/profile', {
+          response = await fetch('https://onlinejudge-2nas.onrender.com/user/profile', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ const Dashboard = () => {
           });
           break;
         case 'password':
-          response = await fetch('http://localhost:2999/user/change-password', {
+          response = await fetch('https://onlinejudge-2nas.onrender.com/user/change-password', {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -134,7 +134,7 @@ const Dashboard = () => {
           });
           break;
         case 'delete':
-          response = await fetch('http://localhost:2999/user/account', {
+          response = await fetch('https://onlinejudge-2nas.onrender.com/user/account', {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${authToken}`
@@ -183,7 +183,7 @@ const Dashboard = () => {
 
   const handleViewAllSubmissions = async () => {
     try {
-      const response = await fetch('http://localhost:3000/user/all-submissions', {
+      const response = await fetch('http://13.126.186.18:3000/user/all-submissions', {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       const data = await response.json();

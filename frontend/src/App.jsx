@@ -21,6 +21,7 @@ import AdminAll from './components/admin/AdminAll';
 import AdminUpdate from './components/admin/AdminUpdate'
 import Referral from './components/Referral';
 import ReferralPage from './pages/ReferralPage';
+import Homeb from './pages/HomeB';
 
 function App() {
 
@@ -30,7 +31,7 @@ function App() {
         <Route path="/user/signup/:referral_id?" element={<Signup />} />
         <Route path="/user/login" element={<Login/>} />
         <Route path="/user/DashBoard" element={<UserDashBoard/>} />
-        <Route path="/" element={<Dashboard/>} />
+        <Route path="/" element={<Homeb/>} />
         <Route path="/head" element={<Header/>} />
         <Route path="/f" element={<Footer/>} />
         <Route path="/h" element={<HomePage/>} />

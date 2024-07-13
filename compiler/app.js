@@ -67,7 +67,8 @@ app.post("/run",async (req,res)=>{
     try{
         const filePath = await generateFile(language,code);
         const inputPath = await generateInputFile(input);
-        const output = await executeCpp(filePath,inputPath);
+        const timeLimit = 10;
+        const output = await executeCpp(filePath,inputPath,timeLimit);
         res.send({filePath,inputPath,output})
     } catch(error){
         res.status(500).json({success: false, message:"Error:"+error})
@@ -78,20 +79,7 @@ app.post("/run",async (req,res)=>{
 ;
 
 
-app.post('/run', async (req, res) => {
-    const { language = "cpp", code, input } = req.body;
-    if (code === undefined) {
-        return res.status(400).json({ success: false, error: "Empty code body" });
-    }
-    try {
-        const filePath = generateFile(language, code);
-        const inputPath = generateInputFile(input);
-        const output = await executeCpp(filePath, inputPath);
-        res.json({ filePath, output });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
+
 
 app.post('/submit/:problemId', authenticateToken, async (req, res) => {
     const { problemId } = req.params;
