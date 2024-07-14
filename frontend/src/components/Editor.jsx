@@ -71,7 +71,7 @@ const Editor = () => {
   const handleRun = async () => {
     try {
       setOutput('Running code...');
-      const response = await axios.post('http://13.126.186.18:3000/run', {
+      const response = await axios.post('https://compiler.algosprint.online/run', {
         language,
         code,
         input: customInput
@@ -87,7 +87,7 @@ const Editor = () => {
     try {
       setOutput('Submitting code...');
       setTestResults([]);
-      const response = await fetch(`http://13.126.186.18:3000/submit/${problemId}`,  {
+      const response = await fetch(`https://compiler.algosprint.online/submit/${problemId}`,  {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

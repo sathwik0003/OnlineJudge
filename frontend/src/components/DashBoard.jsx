@@ -68,9 +68,9 @@ const Dashboard = () => {
       try {
         const [userDetails, stats, monthlyStats, topicStats] = await Promise.all([
           fetch('https://onlinejudge-2nas.onrender.com/userdetails', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
-          fetch('http://13.126.186.18:3000/user/statistics', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
-          fetch('http://13.126.186.18:3000/user/monthly-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
-          fetch('http://13.126.186.18:3000/user/topic-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json())
+          fetch('https://compiler.algosprint.online/user/statistics', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
+          fetch('https://compiler.algosprint.online/user/monthly-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json()),
+          fetch('https://compiler.algosprint.online/user/topic-stats', { headers: { 'Authorization': `Bearer ${authToken}` } }).then(res => res.json())
         ]);
 
         setUser(userDetails);
@@ -183,7 +183,7 @@ const Dashboard = () => {
 
   const handleViewAllSubmissions = async () => {
     try {
-      const response = await fetch('http://13.126.186.18:3000/user/all-submissions', {
+      const response = await fetch('https://compiler.algosprint.online/user/all-submissions', {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       const data = await response.json();
