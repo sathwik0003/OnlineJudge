@@ -29,7 +29,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: '*', 
+    origin: 'https://online-judge-beryl.vercel.app', 
     credentials: true, 
 };
 
