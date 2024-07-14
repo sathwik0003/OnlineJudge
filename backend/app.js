@@ -23,7 +23,7 @@ const port = 2999;
 connectDB();
 
 const corsOptions = {
-    origin: ' https://online-judge-beryl.vercel.app', 
+    origin: ' https://www.algosprint.online', 
     credentials: true, 
 };
 
