@@ -23,7 +23,7 @@ const port = 2999;
 connectDB();
 
 const corsOptions = {
-    origin: 'http://localhost:5173', 
+    origin: '*', 
     credentials: true, 
 };
 
