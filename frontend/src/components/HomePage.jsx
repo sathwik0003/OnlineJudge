@@ -116,7 +116,7 @@ const HomePage = () => {
 
         <Box as={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <Heading as="h2" size="xl" mb={6} textAlign="center">
-            Our Partners 🤝
+            Popular Companies 🤝
           </Heading>
           <Marquee speed={50} gradient={false}>
             {companyLogos.map((company, index) => (
